@@ -2,7 +2,7 @@
 
 **Predicting Restaurant Health Inspection Failures in Chicago and Auditing Where Enforcement Falls**
 
-**Group 11D:** Khizer Butt, Althan Nguyen, Eva Wonsowicz, Fareeha Gullany, Joshua Jacob, Snehal Agrawal, Rodas (full name to be added before submission)
+**Group 11D:** Althan Nguyen, Eva Wonsowicz,Fareeha Gullany, Joshua Jacob, Khizer Butt, Rodas, Snehal Agrawal
 
 ---
 
