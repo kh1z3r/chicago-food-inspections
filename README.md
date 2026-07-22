@@ -1,6 +1,6 @@
 <div align="center">
 
-# Project Proposal: Chicago Food Inspections
+# AI4ALL Project: Chicago Food Inspections
 
 ### Predicting Restaurant Health Inspection Failures in Chicago and Auditing Where Enforcement Falls
 
