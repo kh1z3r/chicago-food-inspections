@@ -171,13 +171,18 @@ a:hover{ color:var(--red-ink); }
 
 /* ---- sidebar (navy identity). Do NOT set font-family on icon spans. ---- */
 [data-testid="stSidebar"]{ background:var(--navy); border-right:3px solid var(--red); }
+/* lift the brand (user content) above the auto navigation */
+[data-testid="stSidebar"] div:has(> [data-testid="stSidebarNav"]){ display:flex; flex-direction:column; }
+[data-testid="stSidebarUserContent"]{ order:1; padding-top:0; }
+[data-testid="stSidebarNav"]{ order:2; }
 [data-testid="stSidebar"] a,[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,
 [data-testid="stSidebar"] li,[data-testid="stSidebarNav"] span{ color:#E7EEF6!important; }
-[data-testid="stSidebarNav"]{ padding-top:.4rem; }
-[data-testid="stSidebarNav"] a{ font-family:var(--font-body); font-size:.95rem;
-  line-height:1.3; padding:.42rem .75rem; }
+[data-testid="stSidebarNav"]{ padding-top:.2rem; }
+[data-testid="stSidebarNav"] a{ font-family:var(--font-body); font-size:1rem;
+  line-height:1.3; padding:.46rem .8rem; }
 [data-testid="stSidebarNav"] a p,[data-testid="stSidebarNav"] a span:not([data-testid]){
-  font-size:.95rem; margin:0; }
+  font-size:1rem; margin:0; }
+[data-testid="stSidebarNav"] a:hover{ background:rgba(255,255,255,.06); }
 [data-testid="stSidebarNav"] a[aria-current="page"]{ color:var(--white)!important;
   box-shadow:inset 4px 0 0 var(--red); background:rgba(255,255,255,.06); }
 [data-testid="stSidebar"] [data-testid="stIconMaterial"],
@@ -188,13 +193,26 @@ a:hover{ color:var(--red-ink); }
   box-sizing:border-box; overflow:hidden; }
 [data-testid="stPlotlyChart"] .modebar{ display:none!important; }
 
-/* ---- prev / next page nav ---- */
-.riso-pagenav{ border-top:2px solid var(--navy); margin-top:var(--space-section); }
-[data-testid="stPageLink"]{ margin-top:.7rem; }
-[data-testid="stPageLink"] a{ font-family:var(--font-display); text-transform:uppercase;
-  font-size:.82rem; letter-spacing:.03em; color:var(--navy)!important; }
-[data-testid="stPageLink"] a:hover{ color:var(--red-ink)!important; background:transparent; }
-[data-testid="stPageLink"] a p{ color:inherit!important; font-size:.82rem; }
+/* ---- prev / next page nav (button-like, edge-aligned, hover-fill) ---- */
+.riso-pagenav{ border-top:2px solid var(--navy); margin-top:var(--space-section); margin-bottom:.4rem; }
+[data-testid="stPageLink"]{ margin-top:.9rem; }
+[data-testid="stPageLink"] a{ display:inline-flex; align-items:center; gap:.45rem;
+  border:2px solid var(--navy); background:var(--panel); padding:.6rem 1.05rem; box-sizing:border-box;
+  font-family:var(--font-display); text-transform:uppercase; font-size:.92rem; letter-spacing:.03em;
+  color:var(--navy)!important; transition:background .14s ease, color .14s ease; }
+[data-testid="stColumn"]:last-child [data-testid="stPageLink"]{ display:flex; justify-content:flex-end; }
+[data-testid="stPageLink"] a:hover{ background:var(--navy); color:var(--white)!important; }
+[data-testid="stPageLink"] a:hover p{ color:var(--white)!important; }
+[data-testid="stPageLink"] a p{ color:inherit!important; font-size:.92rem; margin:0; }
+
+/* ---- sidebar brand (above the nav) ---- */
+.riso-brand{ padding:1.05rem .95rem .85rem; margin-bottom:.5rem;
+  border-bottom:1px solid rgba(255,255,255,.16); }
+.riso-brand .bstars{ display:flex; gap:.3rem; margin-bottom:.55rem; }
+.riso-brand .bmain{ font-family:var(--font-display); text-transform:uppercase;
+  font-size:1.55rem; color:var(--white); line-height:1; letter-spacing:.005em; }
+.riso-brand .bsub{ font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase;
+  letter-spacing:.14em; color:#9DB6D2; margin-top:.5rem; }
 
 /* ---- minimal page transition ---- */
 [data-testid="stMain"] .block-container{ animation:riso-fade .28s ease-out; }

@@ -6,11 +6,21 @@ st.set_page_config(
     layout="wide",
 )
 
-from utils import apply_theme
+from utils import apply_theme, RED, _star_svg
 
 # Inject the theme once, at the top of every rerun, before the selected page renders.
 # This keeps the styling present from the first paint so navigation never flashes unstyled.
 apply_theme()
+
+# Sidebar brand, above the auto navigation.
+with st.sidebar:
+    _stars = "".join(_star_svg(RED, 13) for _ in range(4))
+    st.markdown(
+        f'<div class="riso-brand"><div class="bstars">{_stars}</div>'
+        f'<div class="bmain">AI4ALL</div>'
+        f'<div class="bsub">Group 11D · Ignite</div></div>',
+        unsafe_allow_html=True,
+    )
 
 nav = st.navigation([
     st.Page("home.py", title="Overview", default=True),
