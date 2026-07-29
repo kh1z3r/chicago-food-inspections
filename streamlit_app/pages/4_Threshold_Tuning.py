@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 from sklearn.metrics import recall_score, precision_score, f1_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, SLATE, style_figure
 
-apply_theme()
 
 eyebrow("Section 4")
 st.title("Can we fix the over-flagging with a stricter cutoff?")
@@ -108,3 +107,6 @@ finding(
     "high-FPR ZIPs barely move. A single global threshold can't fix a disparity that lives "
     "at the ZIP level."
 )
+
+from utils import page_nav
+page_nav(prev=("pages/3_Neighborhood_Effect.py", "Neighborhood Effect"), next=("pages/5_Fairness_Audit.py", "Fairness Audit"))

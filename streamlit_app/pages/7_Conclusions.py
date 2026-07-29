@@ -1,7 +1,6 @@
 import streamlit as st
 from utils import apply_theme, eyebrow, finding
 
-apply_theme()
 
 eyebrow("Section 7")
 st.title("What we found — and what we can't claim")
@@ -62,3 +61,6 @@ st.caption(
     "Group 11D · AI4ALL · Data: City of Chicago Food Inspections, Chicago Data Portal "
     "(Chicago Department of Public Health)."
 )
+
+from utils import page_nav
+page_nav(prev=("pages/6_Enforcement_Check.py", "Enforcement Check"))

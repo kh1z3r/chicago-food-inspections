@@ -4,7 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, SLATE, style_figure
 
-apply_theme()
 
 eyebrow("Section 5")
 st.title("Which neighborhoods does the model over- or under-flag?")
@@ -86,3 +85,6 @@ finding(
     "the research question's second half: predicted risk is not distributed evenly across "
     "the city, whatever its cause. Section 6 checks whether that cause is enforcement mix."
 )
+
+from utils import page_nav
+page_nav(prev=("pages/4_Threshold_Tuning.py", "Threshold Tuning"), next=("pages/6_Enforcement_Check.py", "Enforcement Check"))

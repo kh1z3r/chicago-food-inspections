@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 from sklearn.metrics import recall_score, precision_score, f1_score, confusion_matrix
 from utils import apply_theme, eyebrow, stat_card, finding, load_parquet, require, BLUE, RED, INK, SLATE, style_figure, label_heatmap_cells
 
-apply_theme()
 
 eyebrow("Section 1")
 st.title("Does the model actually work?")
@@ -124,3 +123,6 @@ if cal is not None:
 else:
     from utils import missing_file_notice
     missing_file_notice("calibration_curve.csv")
+
+from utils import page_nav
+page_nav(prev=("home.py", "Overview"), next=("pages/2_What_Drives_Predictions.py", "What Drives Predictions"))

@@ -4,7 +4,6 @@ import plotly.express as px
 from sklearn.metrics import average_precision_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, style_figure
 
-apply_theme()
 
 eyebrow("Section 3 · the core fairness question")
 st.title("Does the model actually use the neighborhood?")
@@ -126,3 +125,6 @@ observed rate could mean genuinely safer food, or it could mean a ZIP is under-i
 its problems simply aren't being found. Section 6 tests this directly.
 """
 )
+
+from utils import page_nav
+page_nav(prev=("pages/2_What_Drives_Predictions.py", "What Drives Predictions"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))

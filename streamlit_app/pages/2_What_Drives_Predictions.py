@@ -2,7 +2,6 @@ import streamlit as st
 import plotly.express as px
 from utils import apply_theme, eyebrow, finding, load_csv, require, BLUE, RED, INK, SLATE, style_figure
 
-apply_theme()
 
 eyebrow("Section 2")
 st.title("What does the model actually lean on?")
@@ -53,3 +52,6 @@ enforcement). The next section tests that directly by removing ZIP code entirely
 comparing what changes.
 """
 )
+
+from utils import page_nav
+page_nav(prev=("pages/1_Model_Performance.py", "Model Performance"), next=("pages/3_Neighborhood_Effect.py", "Neighborhood Effect"))

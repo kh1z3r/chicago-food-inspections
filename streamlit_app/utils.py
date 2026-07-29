@@ -173,14 +173,32 @@ a:hover{ color:var(--red-ink); }
 [data-testid="stSidebar"]{ background:var(--navy); border-right:3px solid var(--red); }
 [data-testid="stSidebar"] a,[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,
 [data-testid="stSidebar"] li,[data-testid="stSidebarNav"] span{ color:#E7EEF6!important; }
-[data-testid="stSidebarNav"] a{ font-family:var(--font-body); }
+[data-testid="stSidebarNav"]{ padding-top:.4rem; }
+[data-testid="stSidebarNav"] a{ font-family:var(--font-body); font-size:.95rem;
+  line-height:1.3; padding:.42rem .75rem; }
+[data-testid="stSidebarNav"] a p,[data-testid="stSidebarNav"] a span:not([data-testid]){
+  font-size:.95rem; margin:0; }
 [data-testid="stSidebarNav"] a[aria-current="page"]{ color:var(--white)!important;
   box-shadow:inset 4px 0 0 var(--red); background:rgba(255,255,255,.06); }
 [data-testid="stSidebar"] [data-testid="stIconMaterial"],
 [data-testid="stSidebarCollapseButton"] *{ color:#E7EEF6!important; }
 
-/* ---- plotly chart frame ---- */
-[data-testid="stPlotlyChart"]{ border:2px solid var(--navy); background:var(--panel); padding:2px; }
+/* ---- plotly chart frame (border-box so it never triggers an inner scrollbar) ---- */
+[data-testid="stPlotlyChart"]{ border:2px solid var(--navy); background:var(--panel);
+  box-sizing:border-box; overflow:hidden; }
+[data-testid="stPlotlyChart"] .modebar{ display:none!important; }
+
+/* ---- prev / next page nav ---- */
+.riso-pagenav{ border-top:2px solid var(--navy); margin-top:var(--space-section); }
+[data-testid="stPageLink"]{ margin-top:.7rem; }
+[data-testid="stPageLink"] a{ font-family:var(--font-display); text-transform:uppercase;
+  font-size:.82rem; letter-spacing:.03em; color:var(--navy)!important; }
+[data-testid="stPageLink"] a:hover{ color:var(--red-ink)!important; background:transparent; }
+[data-testid="stPageLink"] a p{ color:inherit!important; font-size:.82rem; }
+
+/* ---- minimal page transition ---- */
+[data-testid="stMain"] .block-container{ animation:riso-fade .28s ease-out; }
+@keyframes riso-fade{ from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:none; } }
 
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none!important; animation:none!important; } }
 """
@@ -199,6 +217,25 @@ def star_rule():
     """A navy rule with a single red Chicago star, as a section marker."""
     st.markdown(f'<div class="riso-rule"><span class="bar"></span>{_star_svg(RED, 16)}'
                 f'<span class="bar"></span></div>', unsafe_allow_html=True)
+
+
+def page_nav(prev=None, next=None):
+    """Prev / next links at the foot of a page so readers don't need the sidebar.
+    prev and next are (page_path, label) tuples."""
+    st.markdown('<div class="riso-pagenav"></div>', unsafe_allow_html=True)
+    left, right = st.columns(2)
+    if prev:
+        with left:
+            try:
+                st.page_link(prev[0], label=f"←  {prev[1]}")
+            except Exception:
+                pass
+    if next:
+        with right:
+            try:
+                st.page_link(next[0], label=f"{next[1]}  →")
+            except Exception:
+                pass
 
 
 def stat_card(value, label, tone="navy", flag=False):
@@ -235,12 +272,14 @@ def style_figure(fig, mode="light", **layout_kwargs):
         paper_bgcolor=PANEL, plot_bgcolor=PANEL,
         font=dict(family="Archivo, sans-serif", color=INK, size=13),
         colorway=[NAVY_2, RED],
-        title_font=dict(family="Archivo Black, sans-serif", size=19, color=NAVY),
         margin=dict(l=58, r=26, t=54, b=50), bargap=0.3,
         legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor=NAVY, borderwidth=1),
     )
     base.update(layout_kwargs)
     fig.update_layout(**base)
+    # a title-less chart must never render the JS string "undefined"; normalize + style
+    fig.update_layout(title=dict(text=fig.layout.title.text or "",
+                      font=dict(family="Archivo Black, sans-serif", size=18, color=NAVY)))
     # mirror=True draws the axis line on all four sides -> a clean box frame
     fig.update_xaxes(showgrid=False, linecolor=NAVY, linewidth=1.5, mirror=True, ticks="outside",
                      tickfont=dict(family="Space Mono, monospace", size=12, color=INK),

@@ -3,7 +3,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, style_figure
 
-apply_theme()
 
 eyebrow("Section 6 · the payoff question")
 st.title("Is the over-flagging about food safety, or about who gets inspected?")
@@ -83,3 +82,6 @@ finding(
     "of causation &mdash; but it's consistent with enforcement intensity itself, not just "
     "underlying food safety, shaping the model's predictions."
 )
+
+from utils import page_nav
+page_nav(prev=("pages/5_Fairness_Audit.py", "Fairness Audit"), next=("pages/7_Conclusions.py", "Conclusions"))
