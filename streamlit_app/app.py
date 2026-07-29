@@ -10,25 +10,39 @@ st.set_page_config(
 )
 apply_theme()
 
-eyebrow("Group 11D · AI4ALL")
-st.title("Predicting Restaurant Health Inspection Failures in Chicago")
+# ---- Hero (Soft lockup over Bold stat cards) ----
 st.markdown(
-    "**Predicting restaurant health inspection failures and auditing where enforcement falls.** "
-    "Nguyen · Wonsowicz · Gullany · Jacob · Butt · Rodas · Agrawal"
+    """
+<div class="riso-soft riso-hero">
+<div class="riso-eyebrow"><span class="riso-halftone tick"></span>GROUP 11D · AI4ALL IGNITE</div>
+<h1 class="riso-mis riso-hero-title">Predicting Failure,<br>Auditing Fairness</h1>
+<p class="riso-hero-sub">We trained a model to predict which Chicago restaurants fail inspection, then audited who its mistakes fall on. The city already predicts well; the sharper question is <strong>who the model gets wrong, and where.</strong></p>
+<p class="riso-hero-team">Nguyen · Wonsowicz · Gullany · Jacob · Butt · Rodas · Agrawal</p>
+</div>
+""",
+    unsafe_allow_html=True,
 )
+
+# ---- Headline findings (Bold stat row) ----
+h1, h2, h3, h4 = st.columns(4)
+with h1:
+    stat_card("67%", "chance a passing restaurant is wrongly flagged in the most-flagged ZIP (60620)", tone="red")
+with h2:
+    stat_card("6%", "the same odds in the Loop downtown", tone="blue")
+with h3:
+    stat_card("12×", "gap in false-alarm rate, most- vs least-flagged neighborhood", tone="red")
+with h4:
+    stat_card("24.6%", "of predictions flip when ZIP code is removed from the model", tone="blue")
 
 st.markdown(
     """
 Every year the CDC estimates roughly **48 million** Americans get sick, **128,000** are
-hospitalized, and **3,000** die from foodborne illness. Cities like Chicago inspect
-restaurants to catch problems early — but there are far too few inspectors to visit every
-kitchen often, so *where* to send them first is a real, high-stakes question.
-
-We trained models to predict whether a Chicago restaurant inspection will end in a **Fail**,
-using only information available *before* the inspection: facility type, assigned risk level,
-inspection type, and ZIP code. Then we asked a harder question: **do failure predictions
-differ across ZIP codes because of real food-safety risk, or because of how unevenly
-enforcement itself is distributed?**
+hospitalized, and **3,000** die from foodborne illness. Chicago inspects restaurants to catch
+problems early, but with far too few inspectors to visit every kitchen often, so *where* to send
+them first is a real, high-stakes question. We predict inspection failures from information
+available *before* the inspection (facility type, risk level, inspection type, and ZIP), then ask
+whether those predictions differ across ZIP codes because of real food-safety risk, or because of
+how unevenly enforcement itself is distributed.
 """
 )
 
