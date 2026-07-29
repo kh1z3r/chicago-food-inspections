@@ -1,0 +1,14 @@
+# Artifacts from streamlit_app
+streamlit_app/artifacts/rf_with_zip.joblib
+streamlit_app/artifacts/rf_no_zip.joblib
+streamlit_app/artifacts/logreg.joblib
+streamlit_app/artifacts/test_predictions.parquet
+streamlit_app/artifacts/permutation_importance.csv
+streamlit_app/artifacts/zip_flip_summary.csv
+streamlit_app/artifacts/zip_fpr_fnr.csv
+streamlit_app/artifacts/zip_enforcement_compare.csv
+streamlit_app/artifacts/threshold_sweep.csv
+streamlit_app/artifacts/calibration_curve.csv
+streamlit_app/artifacts/zip_centroids.csv
+
+streamlit_app/venv
