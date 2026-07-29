@@ -2,7 +2,6 @@ import streamlit as st
 import plotly.express as px
 from utils import apply_theme, eyebrow, finding, load_csv, require, BLUE, RED, INK, SLATE, style_figure
 
-st.set_page_config(page_title="What Drives Predictions", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 2")

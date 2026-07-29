@@ -4,7 +4,6 @@ import plotly.express as px
 from sklearn.metrics import average_precision_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, style_figure
 
-st.set_page_config(page_title="Neighborhood Effect", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 3 · the core fairness question")

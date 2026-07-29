@@ -4,7 +4,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, SLATE, style_figure
 
-st.set_page_config(page_title="Fairness Audit", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 5")

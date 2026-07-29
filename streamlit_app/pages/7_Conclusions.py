@@ -1,7 +1,6 @@
 import streamlit as st
 from utils import apply_theme, eyebrow, finding
 
-st.set_page_config(page_title="Conclusions", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 7")

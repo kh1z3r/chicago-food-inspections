@@ -1,11 +1,11 @@
 """
 Shared styling and data-loading helpers for the Chicago Food Inspections app.
 
-Risograph print system (Group 11D). Two spot inks — the Chicago city flag's red and
-blue — plus warm black ink on uncoated cream. One token base, one texture dial:
-Bold (default, every data surface) and Soft (hero, dividers, icons). Bold keeps
-data legible; Soft carries the printed-zine mood. All styling flows through the
-tokens below, apply_theme() (CSS), and style_figure() (Plotly), so restyling
+Chicago-flag design system (Group 11D). Deep navy is the identity (masthead,
+sidebar, dividers, footer); flag red is the accent and the "over-flagged / FAIL"
+signal; six-point stars are the recurring Chicago mark; data lives on a clean
+near-white so charts and tables stay razor-legible. Everything flows through the
+tokens below, apply_theme() (CSS) and style_figure() (Plotly), so restyling
 happens in one place.
 """
 
@@ -15,269 +15,254 @@ from pathlib import Path
 
 ARTIFACTS = Path(__file__).parent / "artifacts"
 
-# ---- Ink + paper tokens (exposed for Plotly / page code) ----
-INK = "#1B1714"          # warm near-black, all text
-INK_SOFT = "#3A342C"     # muted secondary text
-BLACK = "#211E1A"        # decorative rules / borders
-BLUE = "#0078BF"         # Federal Blue: neutral / baseline / PASS / interactive
-BLUE_INK = "#005C93"     # text-safe blue (links)
-RED = "#F15060"          # Bright Red: the flagged / over-scrutinised / FAIL signal
-RED_INK = "#B02A3A"      # text-safe red
-RED_DEEP = "#8E2130"     # red button fill / sequential dark end
-PAPER = "#FAF4E6"        # crisp cream, Bold surfaces
-PAPER_SOFT = "#F0E9D6"   # worn cream, Soft surfaces
-PAPER_PANEL = "#F3ECDA"  # card / panel background
+# ---- palette tokens (exposed for Plotly / page code) ----
+NAVY = "#0A2A4A"         # identity: masthead, sidebar, dividers, footer
+NAVY_2 = "#123A63"       # lighter navy: chart bars, hover, secondary
+NAVY_DEEP = "#07203A"    # depth / heavy borders
+RED = "#C8102E"          # Chicago flag red: stars, the harm / over-flagged signal
+RED_INK = "#A20C24"      # red text on white (AA)
+INK = "#15181C"          # near-black body text on white
+INK_SOFT = "#4B5158"     # secondary text, captions
+PAPER = "#FCFCFA"        # near-white data surface (clean, not cream)
+PANEL = "#FFFFFF"        # card fill
+PANEL_2 = "#F1F3F6"      # subtle gray panel
+LINE = "#D7DCE3"         # light rule
+WHITE = "#FFFFFF"
 # legacy aliases so older page code keeps importing cleanly
+BLUE = NAVY_2
+BLUE_INK = NAVY
 SLATE = INK_SOFT
 RED_TEXT = RED_INK
-AMBER = "#C89B3C"
+BLACK = INK
+PAPER_SOFT = PAPER
+PAPER_PANEL = PANEL_2
+AMBER = "#C8102E"
 FONT = dict(color=INK, family="Archivo, sans-serif")
 
-# Sequential + diverging ramps for per-ZIP magnitude charts
-RED_SEQUENTIAL = ["#FCE4E7", "#F5A3AC", "#F15060", "#C23A48", "#8E2130"]
-FLAG_DIVERGING = [[0.0, BLUE], [0.5, "#D8D2C4"], [1.0, RED]]
+# sequential + diverging ramps for per-ZIP magnitude charts
+RED_SEQUENTIAL = ["#FBE3E7", "#EF9AA6", "#DB4A5E", "#C8102E", "#8E0B20"]
+FLAG_DIVERGING = [[0.0, NAVY_2], [0.5, "#E9ECF0"], [1.0, RED]]
 
 
-_RISO_CSS = """
+def _star_svg(color=RED, size=14):
+    """A single Chicago six-point star as inline SVG."""
+    pts = ("12,1 14.75,7.24 21.53,6.5 17.5,12 21.53,17.5 14.75,16.76 "
+           "12,23 9.25,16.76 2.47,17.5 6.5,12 2.47,6.5 9.25,7.24")
+    return (f'<svg class="riso-star" width="{size}" height="{size}" viewBox="0 0 24 24" '
+            f'aria-hidden="true"><polygon points="{pts}" fill="{color}"/></svg>')
+
+
+_CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root{
-  --riso-red:#F15060; --riso-red-ink:#B02A3A; --riso-red-deep:#8E2130;
-  --riso-blue:#0078BF; --riso-blue-ink:#005C93;
-  --riso-ink:#1B1714; --riso-ink-soft:#3A342C; --riso-black:#211E1A;
-  --paper-bold:#FAF4E6; --paper-soft:#F0E9D6; --paper-panel:#F3ECDA; --knockout:#FFFFFF;
-
-  --grain-bold:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  --grain-soft:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  --grain-opacity:0.05; --grain-tile:var(--grain-bold);
-  --mis-offset:1.5px; --halftone-scale:7px; --edge-jitter:0;
+  --navy:#0A2A4A; --navy-2:#123A63; --navy-deep:#07203A;
+  --red:#C8102E; --red-ink:#A20C24;
+  --ink:#15181C; --ink-soft:#4B5158;
+  --paper:#FCFCFA; --panel:#FFFFFF; --panel-2:#F1F3F6; --line:#D7DCE3; --white:#FFFFFF;
 
   --font-display:'Archivo Black','Arial Black',sans-serif;
   --font-body:'Archivo',system-ui,sans-serif;
   --font-mono:'Space Mono',ui-monospace,monospace;
 
-  --fs-hero:clamp(2.75rem,6vw,4.5rem); --lh-hero:0.95;
-  --fs-h1:2.5rem; --fs-h2:1.875rem; --fs-h3:1.375rem;
-  --fs-stat:clamp(1.7rem,2.3vw,2.4rem);
-  --fs-body-lg:1.125rem; --fs-body:1rem; --fs-small:0.875rem; --fs-eyebrow:0.75rem;
-  --lh-body:1.6; --track-eyebrow:.14em; --track-display:-.01em;
-
-  --line:2px solid var(--riso-ink); --line-heavy:3px solid var(--riso-ink);
-  --shadow-print:4px 4px 0 var(--riso-ink);
+  --fs-hero:clamp(2.6rem,5.4vw,4rem); --fs-h1:2.1rem; --fs-h2:1.6rem; --fs-h3:1.22rem;
+  --fs-stat:clamp(1.7rem,2.3vw,2.35rem);
+  --fs-body-lg:1.1rem; --fs-body:1rem; --fs-small:0.875rem; --fs-eyebrow:0.72rem;
+  --lh-body:1.62; --track-eyebrow:.16em;
+  --space-section:2.6rem;
 }
 
-/* ---- force the Riso paper to win over OS dark mode / an unread config ---- */
-.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{ background:var(--paper-bold); }
-.stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp h5,.stApp h6,
-[data-testid="stHeading"],[data-testid="stHeading"] *{ color:var(--riso-ink)!important; }
-.stApp [data-testid="stMarkdownContainer"] p,
-.stApp [data-testid="stMarkdownContainer"] li,
-.stApp [data-testid="stMarkdownContainer"] strong,
-.stApp [data-testid="stMarkdownContainer"] em{ color:var(--riso-ink); }
-[data-testid="stHeader"],[data-testid="stToolbar"]{ background:var(--paper-bold)!important; }
-[data-testid="stHeader"] *,[data-testid="stToolbar"] *{ color:var(--riso-ink)!important; fill:var(--riso-ink)!important; }
-[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] *{ color:var(--riso-ink-soft)!important; }
-[data-testid="stAlert"]{ background:var(--paper-panel); border:var(--line); border-radius:0; color:var(--riso-ink); }
-
-/* ---- paper base + page-wide grain ---- */
-.stApp::before{
-  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
-  background-image:var(--grain-tile); background-size:140px 140px;
-  opacity:var(--grain-opacity); mix-blend-mode:multiply;
-}
-[data-testid="stAppViewContainer"] > .main{ position:relative; z-index:1; }
-
-/* Soft flips only the intensity tokens; page-wide grain stays low behind copy */
-.riso-soft{
-  --grain-opacity:0.13; --grain-tile:var(--grain-soft);
-  --mis-offset:3px; --halftone-scale:12px; --edge-jitter:0.75px;
-}
+/* ---- force the light Chicago paper to win over OS dark mode / config ---- */
+.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{ background:var(--paper); }
+.stApp h1,.stApp h2,.stApp h3,.stApp h4,[data-testid="stHeading"],[data-testid="stHeading"] *{ color:var(--navy)!important; }
+.stApp [data-testid="stMarkdownContainer"] p,.stApp [data-testid="stMarkdownContainer"] li,
+.stApp [data-testid="stMarkdownContainer"] strong,.stApp [data-testid="stMarkdownContainer"] em{ color:var(--ink); }
+[data-testid="stHeader"],[data-testid="stToolbar"]{ background:transparent!important; }
+[data-testid="stHeader"] *,[data-testid="stToolbar"] *{ color:var(--navy)!important; fill:var(--navy)!important; }
+[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] *{ color:var(--ink-soft)!important; }
+[data-testid="stAlert"]{ background:var(--panel-2); border:1px solid var(--line); border-radius:0; color:var(--ink); }
 
 /* ---- typography ---- */
-h1,h2,h3,.riso-display{ font-family:var(--font-display); line-height:1.05;
-  letter-spacing:var(--track-display); color:var(--riso-ink); text-transform:uppercase; }
-h1{ font-size:var(--fs-h1); } h2{ font-size:var(--fs-h2); } h3{ font-size:var(--fs-h3); }
+h1,h2,h3,h4,.riso-display{ font-family:var(--font-display); color:var(--navy);
+  letter-spacing:-.01em; line-height:1.08; }
+h1{ font-size:var(--fs-h1); margin-top:.2rem; } h2{ font-size:var(--fs-h2); }
+h3{ font-size:var(--fs-h3); }
 body,p,li,label,td,.stMarkdown{ font-family:var(--font-body); font-size:var(--fs-body);
-  line-height:var(--lh-body); color:var(--riso-ink); }
+  line-height:var(--lh-body); color:var(--ink); }
 .riso-num,code,[data-testid="stMetricValue"]{ font-family:var(--font-mono); }
+.stApp [data-testid="stMarkdownContainer"] p{ margin-bottom:1rem; }
 
-/* ---- misregistration (headings only) ---- */
-.riso-mis{ color:var(--riso-ink);
-  text-shadow:var(--mis-offset) 0 0 rgba(241,80,96,0.90),
-              calc(-1 * var(--mis-offset)) 0 0 rgba(0,120,191,0.85); }
-.riso-soft .riso-mis{
-  text-shadow:var(--mis-offset) 1px 0.6px rgba(241,80,96,0.80),
-              calc(-1 * var(--mis-offset)) -1px 0.6px rgba(0,120,191,0.75); }
+/* ---- section spacing + rules ---- */
+hr{ border:none; height:2px; background:var(--navy); opacity:1; margin:var(--space-section) 0 1.4rem; }
+[data-testid="stMain"] .block-container{ padding-top:2.2rem; max-width:1180px; }
 
-/* ---- halftone accents ---- */
-.riso-halftone{ background-image:radial-gradient(var(--riso-red) 26%, transparent 27%);
-  background-size:var(--halftone-scale) var(--halftone-scale); }
-.riso-halftone-duo{
-  background-image:radial-gradient(var(--riso-red) 30%, transparent 31%),
-                   radial-gradient(var(--riso-blue) 30%, transparent 31%);
-  background-size:var(--halftone-scale) var(--halftone-scale);
-  background-position:0 0, calc(var(--halftone-scale)/2) calc(var(--halftone-scale)/2); opacity:.85; }
-
-/* ---- hero (Soft) ---- */
-.riso-hero{ padding:1.4rem 0 0.4rem; }
-.riso-hero-title{ font-family:var(--font-display); text-transform:uppercase;
-  font-size:var(--fs-hero); line-height:var(--lh-hero); margin:.15em 0 .35em; }
-.riso-hero-sub{ font-family:var(--font-body); font-size:var(--fs-body-lg);
-  line-height:1.5; max-width:62ch; color:var(--riso-ink); }
-.riso-hero-team{ font-family:var(--font-mono); font-size:var(--fs-small);
-  color:var(--riso-ink-soft); letter-spacing:.02em; margin-top:.7rem; }
-
-/* ---- eyebrow ---- */
+/* ---- eyebrow (clean red label, no dot tick) ---- */
 .riso-eyebrow{ font-family:var(--font-mono); font-size:var(--fs-eyebrow);
-  letter-spacing:var(--track-eyebrow); text-transform:uppercase; color:var(--riso-red-ink);
-  display:flex; align-items:center; gap:.5rem; margin:.2rem 0 .3rem; }
-.riso-eyebrow .tick{ width:28px; height:8px; display:inline-block; }
+  letter-spacing:var(--track-eyebrow); text-transform:uppercase; color:var(--red-ink);
+  font-weight:700; margin:0 0 .35rem; }
 
-/* ---- cards / stat cards ---- */
-.riso-card{ background:var(--paper-panel); border:var(--line); border-radius:0;
-  padding:1.15rem 1.3rem; box-shadow:var(--shadow-print); height:100%;
-  display:flex; flex-direction:column; }
-.riso-statcard{ border-left:6px solid var(--riso-ink); min-height:172px; }
-.riso-statcard--red{ border-left-color:var(--riso-red); }
-.riso-statcard--blue{ border-left-color:var(--riso-blue); }
+/* ---- masthead (navy flag band) ---- */
+.riso-masthead{ background:var(--navy); color:var(--white); border-radius:0;
+  padding:2.1rem 2.4rem 2.3rem; margin:0 0 1.9rem; border-left:8px solid var(--red); }
+.riso-masthead .stars{ display:flex; gap:.5rem; margin-bottom:1rem; }
+.riso-masthead .kicker{ font-family:var(--font-mono); font-size:var(--fs-eyebrow);
+  letter-spacing:var(--track-eyebrow); text-transform:uppercase; color:#9DB6D2; font-weight:700; }
+.riso-masthead .title{ font-family:var(--font-display); text-transform:uppercase;
+  font-size:var(--fs-hero); line-height:.98; color:var(--white); margin:.5rem 0 .7rem; }
+.riso-masthead .sub{ font-family:var(--font-body); font-size:var(--fs-body-lg);
+  line-height:1.5; color:#D7E2EF; max-width:64ch; }
+.riso-masthead .sub strong{ color:var(--white); }
+.riso-masthead .team{ font-family:var(--font-mono); font-size:var(--fs-small);
+  color:#8AA6C6; margin-top:1rem; letter-spacing:.02em; }
+
+/* ---- editorial stat ribbon (replaces generic card grid) ---- */
+.riso-ribbon{ display:grid; grid-template-columns:repeat(4,1fr); gap:0;
+  border:2px solid var(--navy); border-radius:0; background:var(--panel); margin:.2rem 0 1.4rem; }
+.riso-ribbon .cell{ padding:1.15rem 1.25rem; border-left:1px solid var(--line); }
+.riso-ribbon .cell:first-child{ border-left:none; }
+.riso-ribbon .cell.harm{ box-shadow:inset 4px 0 0 var(--red); }
+.riso-ribbon .v{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-stat);
+  line-height:1; color:var(--navy); white-space:nowrap; letter-spacing:-.02em; }
+.riso-ribbon .cell.harm .v{ color:var(--red-ink); }
+.riso-ribbon .l{ font-family:var(--font-body); font-size:var(--fs-small);
+  color:var(--ink-soft); margin-top:.5rem; line-height:1.4; }
+@media (max-width:820px){ .riso-ribbon{ grid-template-columns:repeat(2,1fr); }
+  .riso-ribbon .cell:nth-child(3){ border-left:none; } }
+
+/* ---- stat card (kept for pages that call stat_card) ---- */
+.riso-card{ background:var(--panel); border:2px solid var(--navy); border-radius:0;
+  padding:1.15rem 1.3rem; height:100%; display:flex; flex-direction:column; }
+.riso-statcard{ box-shadow:inset 5px 0 0 var(--navy); min-height:150px; }
+.riso-statcard--red{ box-shadow:inset 5px 0 0 var(--red); }
 .riso-statcard .value{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-stat);
-  line-height:1; color:var(--riso-ink); white-space:nowrap; letter-spacing:-.02em; }
+  line-height:1; color:var(--navy); white-space:nowrap; letter-spacing:-.02em; }
+.riso-statcard--red .value{ color:var(--red-ink); }
 .riso-statcard .label{ font-family:var(--font-body); font-size:var(--fs-small);
-  color:var(--riso-ink-soft); margin-top:.55rem; }
+  color:var(--ink-soft); margin-top:.55rem; line-height:1.4; }
 
 /* ---- finding callout ---- */
-.riso-finding{ background:var(--paper-panel); border:3px solid var(--riso-ink);
-  border-left-width:6px; border-radius:0; padding:1rem 1.3rem; margin:.6rem 0 1rem;
-  box-shadow:var(--shadow-print); }
-.riso-finding.riso-block--red{ border-left-color:var(--riso-red); }
-.riso-finding.riso-block--blue{ border-left-color:var(--riso-blue); }
-.riso-finding-title{ font-family:var(--font-display); text-transform:uppercase;
-  font-size:var(--fs-h3); margin-bottom:.4rem; }
-.riso-finding-body{ font-family:var(--font-body); color:var(--riso-ink); line-height:1.55; }
+.riso-finding{ background:var(--panel); border:2px solid var(--navy); border-radius:0;
+  padding:1.1rem 1.35rem; margin:1rem 0 1.3rem; box-shadow:inset 6px 0 0 var(--red);
+  display:flex; gap:.9rem; align-items:flex-start; }
+.riso-finding.baseline{ box-shadow:inset 6px 0 0 var(--navy); }
+.riso-finding .riso-star{ flex:0 0 auto; margin-top:.15rem; }
+.riso-finding-title{ font-family:var(--font-display); color:var(--navy);
+  font-size:var(--fs-h3); margin-bottom:.35rem; }
+.riso-finding-body{ font-family:var(--font-body); color:var(--ink); line-height:1.55; }
+
+/* ---- star divider ---- */
+.riso-rule{ display:flex; align-items:center; gap:.8rem; margin:var(--space-section) 0 1.3rem; }
+.riso-rule .bar{ flex:1; height:2px; background:var(--navy); }
 
 /* ---- buttons / inputs / slider / links ---- */
 .stButton>button{ font-family:var(--font-display); text-transform:uppercase; letter-spacing:.03em;
-  background:var(--riso-blue); color:var(--knockout); border:var(--line); border-radius:0;
-  box-shadow:var(--shadow-print); padding:.6rem 1.1rem;
-  transition:transform .12s ease-out, box-shadow .12s ease-out; }
-.stButton>button:hover{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--riso-ink); color:var(--knockout); }
-.stButton>button:active{ transform:translate(4px,4px); box-shadow:none; }
+  background:var(--navy); color:var(--white); border:2px solid var(--navy); border-radius:0;
+  padding:.55rem 1.1rem; transition:background .12s ease-out; }
+.stButton>button:hover{ background:var(--navy-2); color:var(--white); border-color:var(--navy-2); }
 .stTextInput input,.stNumberInput input,.stSelectbox div[data-baseweb="select"]>div{
-  background:var(--paper-bold); border:var(--line); border-radius:0; color:var(--riso-ink);
+  background:var(--panel); border:2px solid var(--navy); border-radius:0; color:var(--ink);
   font-family:var(--font-mono); }
-:focus-visible{ outline:2px solid var(--riso-blue); outline-offset:2px; }
-.stSlider [data-baseweb="slider"] [role="slider"]{ background:var(--riso-blue);
-  border:2px solid var(--riso-ink); border-radius:0; }
-a,.stMarkdown a{ color:var(--riso-blue-ink); text-decoration:underline;
-  text-decoration-thickness:2px; text-underline-offset:3px; }
-a:hover{ color:var(--riso-red-ink); }
+:focus-visible{ outline:2px solid var(--red); outline-offset:2px; }
+.stSlider [data-baseweb="slider"] [role="slider"]{ background:var(--red);
+  border:2px solid var(--navy); border-radius:0; }
+a,.stMarkdown a{ color:var(--navy); text-decoration:underline; text-decoration-thickness:2px;
+  text-underline-offset:3px; }
+a:hover{ color:var(--red-ink); }
 
-/* ---- sidebar ---- */
-[data-testid="stSidebar"]{ background:var(--paper-panel); border-right:var(--line-heavy); }
-[data-testid="stSidebar"] *{ font-family:var(--font-body); color:var(--riso-ink); }
+/* ---- sidebar (navy identity). Do NOT set font-family on icon spans. ---- */
+[data-testid="stSidebar"]{ background:var(--navy); border-right:3px solid var(--red); }
+[data-testid="stSidebar"] a,[data-testid="stSidebar"] p,[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] li,[data-testid="stSidebarNav"] span{ color:#E7EEF6!important; }
+[data-testid="stSidebarNav"] a{ font-family:var(--font-body); }
+[data-testid="stSidebarNav"] a[aria-current="page"]{ color:var(--white)!important;
+  box-shadow:inset 4px 0 0 var(--red); background:rgba(255,255,255,.06); }
+[data-testid="stSidebar"] [data-testid="stIconMaterial"],
+[data-testid="stSidebarCollapseButton"] *{ color:#E7EEF6!important; }
 
-/* ---- dividers ---- */
-hr{ border:none; height:3px; background:var(--riso-ink); opacity:.9; }
+/* ---- plotly chart frame ---- */
+[data-testid="stPlotlyChart"]{ border:2px solid var(--navy); background:var(--panel); padding:2px; }
 
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{ transition:none!important; animation:none!important; }
-  .stButton>button:hover{ transform:none; box-shadow:var(--shadow-print); }
-}
+@media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none!important; animation:none!important; } }
 """
 
 
-def apply_theme(mode="bold"):
-    """Inject the Risograph system once at the top of every page. mode='soft'
-    is reserved for a page that is entirely voice/mood (no reading copy); pages
-    with paragraphs stay Bold and scope Soft to non-paragraph blocks instead."""
-    st.markdown(f"<style>{_RISO_CSS}</style>", unsafe_allow_html=True)
-    if mode == "soft":
-        st.markdown(
-            "<style>.stApp{--grain-opacity:.13;--grain-tile:var(--grain-soft);"
-            "--mis-offset:3px;--halftone-scale:12px;}</style>",
-            unsafe_allow_html=True,
-        )
+def apply_theme(mode="light"):
+    """Inject the Chicago-flag system once at the top of the app / each page."""
+    st.markdown(f"<style>{_CSS}</style>", unsafe_allow_html=True)
 
 
 def eyebrow(text):
-    st.markdown(
-        f'<div class="riso-eyebrow"><span class="riso-halftone tick"></span>{text.upper()}</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="riso-eyebrow">{text.upper()}</div>', unsafe_allow_html=True)
 
 
-def stat_card(value, label, tone="ink", flag=False):
-    """Bold stat card. tone: 'ink' (neutral), 'red' (a harm metric), 'blue' (a
-    baseline metric). Legacy flag=True is treated as tone='red'."""
-    if flag:
-        tone = "red"
-    mod = {"red": " riso-statcard--red", "blue": " riso-statcard--blue"}.get(tone, "")
+def star_rule():
+    """A navy rule with a single red Chicago star, as a section marker."""
+    st.markdown(f'<div class="riso-rule"><span class="bar"></span>{_star_svg(RED, 16)}'
+                f'<span class="bar"></span></div>', unsafe_allow_html=True)
+
+
+def stat_card(value, label, tone="navy", flag=False):
+    """Stat card. tone 'red'/flag=True = a harm metric; anything else = navy baseline."""
+    if flag or tone == "red":
+        mod = " riso-statcard--red"
+    else:
+        mod = ""
     st.markdown(
         f'<div class="riso-card riso-statcard{mod}">'
-        f'<div class="value">{value}</div>'
-        f'<div class="label">{label}</div></div>',
+        f'<div class="value">{value}</div><div class="label">{label}</div></div>',
         unsafe_allow_html=True,
     )
 
 
 def finding(title, body=None, tone="red"):
-    """Audit-conclusion callout. Call finding(body) for a bare callout, or
-    finding(title, body) for a titled one. tone 'red' = a harm finding,
-    'blue' = a baseline finding."""
+    """Audit-conclusion callout. finding(body) for a bare callout, finding(title, body)
+    for a titled one. tone 'red' = a harm finding, 'baseline'/'navy' = a baseline finding."""
     if body is None:
         title, body = None, title
-    bar = "riso-block--blue" if tone == "blue" else "riso-block--red"
-    head = f'<div class="riso-finding-title riso-mis">{title}</div>' if title else ""
+    cls = "baseline" if tone in ("baseline", "navy", "blue") else ""
+    star = _star_svg(NAVY if cls else RED, 20)
+    head = f'<div class="riso-finding-title">{title}</div>' if title else ""
     st.markdown(
-        f'<div class="riso-finding {bar}">{head}<div class="riso-finding-body">{body}</div></div>',
+        f'<div class="riso-finding {cls}">{star}<div>{head}'
+        f'<div class="riso-finding-body">{body}</div></div></div>',
         unsafe_allow_html=True,
     )
 
 
-def style_figure(fig, mode="bold", **layout_kwargs):
-    """Single source of truth for Plotly styling. Applies the Riso base, then any
-    caller layout overrides (map style, margins, colorbar). Every figure passes
-    through here so no chart sets its own colors, fonts, or margins inline."""
-    paper = PAPER if mode == "bold" else PAPER_SOFT
+def style_figure(fig, mode="light", **layout_kwargs):
+    """Single source of truth for Plotly styling. Chicago navy + flag red, framed."""
     base = dict(
-        paper_bgcolor=paper,
-        plot_bgcolor=paper,
+        paper_bgcolor=PANEL, plot_bgcolor=PANEL,
         font=dict(family="Archivo, sans-serif", color=INK, size=13),
-        colorway=[BLUE, RED],
-        title_font=dict(family="Archivo Black, sans-serif", size=20, color=INK),
-        margin=dict(l=56, r=24, t=56, b=48),
-        bargap=0.28,
-        legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor=INK, borderwidth=2),
+        colorway=[NAVY_2, RED],
+        title_font=dict(family="Archivo Black, sans-serif", size=19, color=NAVY),
+        margin=dict(l=58, r=26, t=54, b=50), bargap=0.3,
+        legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor=NAVY, borderwidth=1),
     )
     base.update(layout_kwargs)
     fig.update_layout(**base)
-    fig.update_xaxes(
-        showgrid=False, linecolor=INK, linewidth=2, ticks="outside",
-        tickfont=dict(family="Space Mono, monospace", size=12, color=INK),
-        title_font=dict(color=INK),
-    )
-    fig.update_yaxes(
-        gridcolor="rgba(27,23,20,0.12)", zerolinecolor=INK, linecolor=INK, linewidth=2,
-        tickfont=dict(family="Space Mono, monospace", size=12, color=INK),
-        title_font=dict(color=INK),
-    )
-    fig.update_traces(marker_line_color=paper, marker_line_width=2, selector=dict(type="bar"))
+    # mirror=True draws the axis line on all four sides -> a clean box frame
+    fig.update_xaxes(showgrid=False, linecolor=NAVY, linewidth=1.5, mirror=True, ticks="outside",
+                     tickfont=dict(family="Space Mono, monospace", size=12, color=INK),
+                     title_font=dict(color=NAVY, size=13))
+    fig.update_yaxes(gridcolor="rgba(10,42,74,0.10)", zerolinecolor=NAVY, linecolor=NAVY,
+                     linewidth=1.5, mirror=True,
+                     tickfont=dict(family="Space Mono, monospace", size=12, color=INK),
+                     title_font=dict(color=NAVY, size=13))
+    fig.update_traces(marker_line_color=PANEL, marker_line_width=1.5, selector=dict(type="bar"))
     return fig
 
 
 def label_heatmap_cells(fig, z):
-    """Per-cell labels with contrast-aware colors (heatmap textfont is one color)."""
     flat = [v for row in z for v in row]
     mid = (max(flat) + min(flat)) / 2
     x_labels = fig.data[0].x
     y_labels = fig.data[0].y
     for i, row_vals in enumerate(z):
         for j, val in enumerate(row_vals):
-            fig.add_annotation(
-                x=x_labels[j], y=y_labels[i], text=f"{val:,}", showarrow=False,
-                font=dict(color="white" if val > mid else INK, size=13,
-                          family="Archivo, sans-serif"),
-            )
+            fig.add_annotation(x=x_labels[j], y=y_labels[i], text=f"{val:,}", showarrow=False,
+                               font=dict(color="white" if val > mid else INK, size=13,
+                                         family="Archivo, sans-serif"))
     return fig
 
 
@@ -306,7 +291,6 @@ def load_parquet(name):
 
 
 def require(df, name):
-    """Show a standard notice and stop the page if a needed file is missing."""
     if df is None:
         missing_file_notice(name)
         st.stop()

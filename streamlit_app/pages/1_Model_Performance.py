@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 from sklearn.metrics import recall_score, precision_score, f1_score, confusion_matrix
 from utils import apply_theme, eyebrow, stat_card, finding, load_parquet, require, BLUE, RED, INK, SLATE, style_figure, label_heatmap_cells
 
-st.set_page_config(page_title="Model Performance", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 1")

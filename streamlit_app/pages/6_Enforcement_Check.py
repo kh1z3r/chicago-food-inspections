@@ -3,7 +3,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, style_figure
 
-st.set_page_config(page_title="Enforcement Check", page_icon="\U0001F37D\uFE0F", layout="wide")
 apply_theme()
 
 eyebrow("Section 6 · the payoff question")
@@ -51,6 +50,7 @@ style_figure(
     legend=dict(orientation="h", y=1.12, font=dict(color=INK)),
     title="Top 15 over-flagged ZIPs: all inspection types vs. routine-only",
 )
+fig.update_xaxes(type="category")   # ZIP codes are labels, not a numeric scale
 st.plotly_chart(fig, use_container_width=True)
 
 finding(
