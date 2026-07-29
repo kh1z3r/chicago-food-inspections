@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, style_figure
 
 
-eyebrow("Section 6 · the payoff question")
+eyebrow("The payoff question")
 st.title("Is the over-flagging about food safety, or about who gets inspected?")
 st.markdown(
     """
@@ -38,16 +38,16 @@ st.divider()
 eyebrow("Restricting to routine inspections only")
 st.subheader("FPR barely changes when we remove enforcement-triggered visits")
 
+st.caption("Top 15 over-flagged ZIPs: all inspection types vs. routine-only Canvass.")
 top = cmp.sort_values("FPR_all", ascending=False).head(15)
 fig = go.Figure()
-fig.add_trace(go.Bar(x=top["Zip"].astype(str), y=top["FPR_all"], name="FPR, all types", marker_color=INK))
+fig.add_trace(go.Bar(x=top["Zip"].astype(str), y=top["FPR_all"], name="FPR, all types", marker_color=BLUE))
 fig.add_trace(go.Bar(x=top["Zip"].astype(str), y=top["FPR_canvass"], name="FPR, Canvass only", marker_color=RED))
 style_figure(
     fig,
     barmode="group", xaxis_title="ZIP", yaxis_title="False-positive rate", yaxis_tickformat=".0%",
-    height=420,
-    legend=dict(orientation="h", y=1.12, font=dict(color=INK)),
-    title="Top 15 over-flagged ZIPs: all inspection types vs. routine-only",
+    height=430, margin=dict(l=58, r=26, t=52, b=50),
+    legend=dict(orientation="h", y=1.09, x=0, font=dict(color=INK)),
 )
 fig.update_xaxes(type="category")   # ZIP codes are labels, not a numeric scale
 st.plotly_chart(fig, use_container_width=True)

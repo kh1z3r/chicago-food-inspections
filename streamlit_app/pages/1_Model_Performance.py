@@ -67,7 +67,7 @@ finding(
 st.divider()
 eyebrow("The cost side")
 st.subheader("Confusion matrices")
-st.caption("TN = correctly cleared · FP = false alarm · FN = missed a real fail · TP = correctly flagged")
+st.caption("TN = correctly cleared,  FP = false alarm,  FN = missed a real fail,  TP = correctly flagged")
 
 cols = st.columns(3)
 for col, r in zip(cols, rows):

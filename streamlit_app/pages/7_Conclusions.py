@@ -58,7 +58,7 @@ st.markdown(
 
 st.divider()
 st.caption(
-    "Group 11D · AI4ALL · Data: City of Chicago Food Inspections, Chicago Data Portal "
+    "Group 11D, AI4ALL Ignite.  Data: City of Chicago Food Inspections, Chicago Data Portal "
     "(Chicago Department of Public Health)."
 )
 

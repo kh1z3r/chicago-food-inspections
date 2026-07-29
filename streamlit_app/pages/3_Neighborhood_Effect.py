@@ -5,7 +5,7 @@ from sklearn.metrics import average_precision_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, style_figure
 
 
-eyebrow("Section 3 · the core fairness question")
+eyebrow("The core fairness question")
 st.title("Does the model actually use the neighborhood?")
 st.markdown(
     """

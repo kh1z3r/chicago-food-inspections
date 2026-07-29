@@ -10,10 +10,10 @@ st.markdown(
     f"""
 <div class="riso-masthead">
 <div class="stars">{stars}</div>
-<div class="kicker">Group 11D · AI4ALL Ignite</div>
+<div class="kicker">An AI4ALL Ignite project by Group 11D</div>
 <div class="title">Predicting Failure,<br>Auditing Fairness</div>
 <div class="sub">We trained a model to predict which Chicago restaurants fail inspection, then audited who its mistakes fall on. The city already predicts well; the sharper question is <strong>who the model gets wrong, and where.</strong></div>
-<div class="team">Nguyen · Wonsowicz · Gullany · Jacob · Butt · Rodas · Agrawal</div>
+<div class="team">Nguyen, Wonsowicz, Gullany, Jacob, Butt, Agrawal</div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -45,7 +45,7 @@ how unevenly enforcement itself is distributed.
 
 star_rule()
 eyebrow("The Dataset")
-st.subheader("City of Chicago · Food Inspections")
+st.subheader("City of Chicago Food Inspections")
 st.markdown(
     """
 <div class="riso-ribbon">
