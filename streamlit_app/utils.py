@@ -58,7 +58,7 @@ _RISO_CSS = """
 
   --fs-hero:clamp(2.75rem,6vw,4.5rem); --lh-hero:0.95;
   --fs-h1:2.5rem; --fs-h2:1.875rem; --fs-h3:1.375rem;
-  --fs-stat:clamp(2.5rem,5vw,3.75rem);
+  --fs-stat:clamp(1.7rem,2.3vw,2.4rem);
   --fs-body-lg:1.125rem; --fs-body:1rem; --fs-small:0.875rem; --fs-eyebrow:0.75rem;
   --lh-body:1.6; --track-eyebrow:.14em; --track-display:-.01em;
 
@@ -66,9 +66,20 @@ _RISO_CSS = """
   --shadow-print:4px 4px 0 var(--riso-ink);
 }
 
+/* ---- force the Riso paper to win over OS dark mode / an unread config ---- */
+.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"]{ background:var(--paper-bold); }
+.stApp h1,.stApp h2,.stApp h3,.stApp h4,.stApp h5,.stApp h6,
+[data-testid="stHeading"],[data-testid="stHeading"] *{ color:var(--riso-ink)!important; }
+.stApp [data-testid="stMarkdownContainer"] p,
+.stApp [data-testid="stMarkdownContainer"] li,
+.stApp [data-testid="stMarkdownContainer"] strong,
+.stApp [data-testid="stMarkdownContainer"] em{ color:var(--riso-ink); }
+[data-testid="stHeader"],[data-testid="stToolbar"]{ background:var(--paper-bold)!important; }
+[data-testid="stHeader"] *,[data-testid="stToolbar"] *{ color:var(--riso-ink)!important; fill:var(--riso-ink)!important; }
+[data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] *{ color:var(--riso-ink-soft)!important; }
+[data-testid="stAlert"]{ background:var(--paper-panel); border:var(--line); border-radius:0; color:var(--riso-ink); }
+
 /* ---- paper base + page-wide grain ---- */
-.stApp{ background:var(--paper-bold); }
-[data-testid="stHeader"]{ background:transparent; }
 .stApp::before{
   content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
   background-image:var(--grain-tile); background-size:140px 140px;
@@ -124,14 +135,15 @@ body,p,li,label,td,.stMarkdown{ font-family:var(--font-body); font-size:var(--fs
 
 /* ---- cards / stat cards ---- */
 .riso-card{ background:var(--paper-panel); border:var(--line); border-radius:0;
-  padding:1.15rem 1.3rem; box-shadow:var(--shadow-print); height:100%; }
-.riso-statcard{ border-left:6px solid var(--riso-ink); }
+  padding:1.15rem 1.3rem; box-shadow:var(--shadow-print); height:100%;
+  display:flex; flex-direction:column; }
+.riso-statcard{ border-left:6px solid var(--riso-ink); min-height:172px; }
 .riso-statcard--red{ border-left-color:var(--riso-red); }
 .riso-statcard--blue{ border-left-color:var(--riso-blue); }
 .riso-statcard .value{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-stat);
-  line-height:1; color:var(--riso-ink); }
+  line-height:1; color:var(--riso-ink); white-space:nowrap; letter-spacing:-.02em; }
 .riso-statcard .label{ font-family:var(--font-body); font-size:var(--fs-small);
-  color:var(--riso-ink-soft); margin-top:.45rem; max-width:26ch; }
+  color:var(--riso-ink-soft); margin-top:.55rem; }
 
 /* ---- finding callout ---- */
 .riso-finding{ background:var(--paper-panel); border:3px solid var(--riso-ink);
