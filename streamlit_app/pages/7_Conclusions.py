@@ -3,17 +3,18 @@ from utils import apply_theme, eyebrow, finding
 
 
 eyebrow("Section 7")
-st.title("What we found — and what we can't claim")
+st.title("What we found, and what we cannot claim")
 
 st.subheader("Findings")
 finding(
     "Facility type, risk level, inspection type, and ZIP code carry real predictive signal: "
-    "both trained models roughly triple recall over a naive baseline (67&ndash;70% vs. 0%)."
+    "both trained models catch 67% to 70% of true failures, versus 0% for a naive baseline "
+    "that always predicts Pass."
 )
 finding(
-    "The models are poorly calibrated &mdash; their confidence scores overstate risk, "
-    "especially at the high end. Treat outputs as a ranking for prioritization, not a "
-    "trustworthy probability."
+    "The models are poorly calibrated: their probability estimates overstate risk, especially "
+    "at the high end. Treat the outputs as a ranking for prioritization, not as trustworthy "
+    "probabilities."
 )
 finding(
     "Inspection type and ZIP code drive predictions more than the restaurant's own declared "
@@ -27,32 +28,33 @@ finding(
 finding(
     "False-positive rates vary widely by ZIP (the worst is roughly 1.5&times; the citywide "
     "rate), and tightening the global decision threshold makes this neighborhood gap "
-    "<i>worse</i>, not better &mdash; a single citywide cutoff can't fix a disparity that "
-    "lives at the ZIP level."
+    "<i>worse</i>, not better. A single citywide cutoff cannot correct a disparity that "
+    "operates at the ZIP level."
 )
 finding(
     "A ZIP's false-positive rate correlates strongly (0.69) with how enforcement-heavy its "
-    "inspection mix is, and the gap persists even when restricted to routine inspections "
-    "only &mdash; the strongest evidence here that enforcement patterns, not just food "
-    "safety, shape which neighborhoods get flagged."
+    "inspection mix is, and the gap persists even when restricted to routine inspections only. "
+    "This is the strongest evidence here that enforcement patterns, not only food safety, shape "
+    "which neighborhoods are flagged."
 )
 
 st.divider()
-st.subheader("Limitations — what this can't tell you")
+st.subheader("Limitations: what this cannot tell you")
 st.markdown(
     """
 - **Correlation, not causation.** The enforcement-share relationship is a strong association,
   not proof that enforcement intensity *causes* over-flagging rather than both being driven
-  by a third factor we haven't measured.
+  by a third factor we have not measured.
 - **Observed fail rate is not the same as true risk.** A low fail rate in a ZIP could reflect
-  genuinely safer food, or it could reflect under-inspection — we can't fully separate these
-  with this dataset alone.
-- **Miscalibrated probabilities.** Neither model's confidence scores should be read as
-  literal risk percentages; only the ranked prioritization and the yes/no calls are validated.
-- **Precision remains low (~30%) at any threshold we tested that preserves useful recall.**
-  Deploying this as-is would mean a majority of flagged restaurants turn out fine.
+  genuinely safer food, or it could reflect under-inspection; we cannot fully separate these
+  two explanations with this dataset alone.
+- **Miscalibrated probabilities.** Neither model's probability estimates should be read as
+  literal risk percentages; only the ranked prioritization and the Pass/Fail classifications
+  are validated.
+- **Precision remains low (approximately 30%) at any threshold we tested that preserves useful
+  recall.** Deployed as-is, a majority of flagged restaurants would in fact pass.
 - **This is retrospective, historical data.** It reflects Chicago's past enforcement patterns
-  and can't say whether a *different* inspection policy would produce different outcomes.
+  and cannot indicate whether a *different* inspection policy would produce different outcomes.
 """
 )
 

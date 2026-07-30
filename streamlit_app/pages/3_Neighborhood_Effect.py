@@ -2,20 +2,23 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from sklearn.metrics import average_precision_score
-from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, style_figure
+from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, RED_SEQUENTIAL, style_figure
+
+MAP_CONFIG = {"displayModeBar": True, "scrollZoom": True, "displaylogo": False,
+              "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
 
 
 eyebrow("The core fairness question")
 st.title("Does the model actually use the neighborhood?")
 st.markdown(
     """
-We trained the same Random Forest twice on the identical split — once **with** ZIP code as a
-feature, once **without** — and compared them with **PR-AUC** (precision-recall area under
-the curve), not recall alone. Recall at a single cutoff is misleading here: removing a
-feature can shift precision and recall in opposite directions without the model actually
-getting better or worse. PR-AUC summarizes quality across every possible cutoff at once, and
-it's the right lens for imbalanced data like this (22% Fail) since it isn't diluted by the
-huge number of easy true negatives.
+We trained the same Random Forest twice on the identical split, once **with** ZIP code as a
+feature and once **without**, then compared them by **PR-AUC** (precision-recall area under the
+curve) rather than recall alone. Recall at a single cutoff is misleading here: removing a feature
+can shift precision and recall in opposite directions without changing overall model quality.
+PR-AUC summarizes performance across every cutoff at once, and it is the appropriate measure for
+imbalanced data like this (22% Fail) because it is not inflated by the large number of easily
+classified true negatives.
 """
 )
 
@@ -41,11 +44,11 @@ with c3:
 
 finding(
     f"PR-AUC drops only modestly when ZIP is removed ({pr_with:.3f} &rarr; {pr_without:.3f}, "
-    f"about a 5% relative change) &mdash; ZIP is not the dominant driver of overall model "
-    f"quality. But <b>{flipped.mean():.1%} of individual predictions flip</b> when ZIP is "
-    "removed. Many restaurants sit near the 0.5 decision boundary, so even a small shift "
-    "from adding ZIP is enough to flip the call for a lot of them &mdash; overall quality "
-    "barely moves, but <i>who</i> gets flagged shifts substantially."
+    f"about a 5% relative change), so ZIP is not the dominant driver of overall model quality. "
+    f"However, <b>{flipped.mean():.1%} of individual predictions flip</b> when ZIP is removed. "
+    "Many restaurants sit near the 0.5 decision boundary, so even a small probability shift is "
+    "enough to change the classification. Overall quality moves little, but <i>which</i> "
+    "restaurants are flagged changes substantially."
 )
 
 st.divider()
@@ -70,26 +73,37 @@ with tab1:
         fig = px.scatter_mapbox(
             m, lat="Latitude", lon="Longitude",
             color="flip_rate", size="n_test", size_max=26,
-            color_continuous_scale=[[0, "#EFE6C8"], [1, RED]],
+            color_continuous_scale=RED_SEQUENTIAL,
             hover_name="Zip",
             hover_data={"flip_rate": ":.1%", "true_fail_rate": ":.1%", "n_test": True,
                         "Latitude": False, "Longitude": False},
-            zoom=9, height=520, labels={"flip_rate": "Flip rate"},
+            zoom=9, height=520,
+            labels={"flip_rate": "Flip rate", "true_fail_rate": "True fail rate",
+                    "n_test": "Test inspections"},
         )
-        style_figure(fig, mapbox_style="carto-positron", margin=dict(l=0, r=0, t=0, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        style_figure(fig, mapbox_style="carto-positron", margin=dict(l=0, r=8, t=0, b=0),
+                     coloraxis_colorbar=dict(title="Flip rate", tickformat=".0%"))
+        st.plotly_chart(fig, use_container_width=True, config=MAP_CONFIG)
+        st.caption("Bubble size = number of test-set inspections in the ZIP; "
+                   "color = share of predictions that flip when ZIP is dropped.")
     else:
         from utils import missing_file_notice
         missing_file_notice("zip_centroids.csv")
 
 with tab2:
+    tbl = flip_df[["Zip", "n_test", "true_fail_rate", "flip_rate",
+                   "flip_up_rate", "flip_down_rate"]].head(20).copy()
+    tbl["Zip"] = tbl["Zip"].astype(str)
+    tbl = tbl.rename(columns={
+        "Zip": "ZIP", "n_test": "Test inspections", "true_fail_rate": "True fail rate",
+        "flip_rate": "Flip rate", "flip_up_rate": "Flip up", "flip_down_rate": "Flip down",
+    })
     st.dataframe(
-        flip_df[["Zip", "n_test", "true_fail_rate", "flip_rate", "flip_up_rate", "flip_down_rate"]]
-        .head(20).style.format({
-            "true_fail_rate": "{:.1%}", "flip_rate": "{:.1%}",
-            "flip_up_rate": "{:.1%}", "flip_down_rate": "{:.1%}",
+        tbl.style.format({
+            "True fail rate": "{:.1%}", "Flip rate": "{:.1%}",
+            "Flip up": "{:.1%}", "Flip down": "{:.1%}",
         }),
-        use_container_width=True,
+        use_container_width=True, hide_index=True,
     )
 
 st.divider()
@@ -108,21 +122,22 @@ with c3:
     stat_card(f"{corr:.2f}", "correlation: flip rate vs. true fail rate")
 
 finding(
-    "Flips are almost entirely one-directional: adding ZIP mostly makes the model "
-    f"<b>more lenient</b> ({down_avg:.1%} flip down vs. only {up_avg:.1%} flip up). And the "
+    "Flips are almost entirely one-directional: adding ZIP predominantly makes the model "
+    f"<b>more lenient</b> ({down_avg:.1%} flip down versus only {up_avg:.1%} flip up). The "
     f"correlation between flip rate and true fail rate is <b>strongly negative ({corr:.2f})</b>: "
-    "ZIP changes predictions the most in neighborhoods that <i>already</i> have the lowest "
-    "observed fail rates &mdash; it acts like a local base-rate correction, pulling down "
-    "over-predictions in low-fail-rate areas rather than adding scrutiny elsewhere."
+    "ZIP changes predictions most in neighborhoods that <i>already</i> have the lowest observed "
+    "fail rates. It functions as a local base-rate correction, lowering over-predictions in "
+    "low-fail-rate areas rather than adding scrutiny elsewhere."
 )
 
 st.markdown(
     """
-That's a more reassuring pattern than "ZIP is inflating risk in poor neighborhoods" &mdash;
-but it comes with a caveat central to this whole project: an *observed* fail rate reflects
-both true food safety **and** how much a neighborhood gets inspected and how. A low
-observed rate could mean genuinely safer food, or it could mean a ZIP is under-inspected and
-its problems simply aren't being found. Section 6 tests this directly.
+This is a more reassuring pattern than "ZIP is inflating risk in already low-fail-rate
+neighborhoods." It carries an important caveat, however, central to this project: an *observed*
+fail rate reflects both true food safety **and** how often and in what manner a neighborhood is
+inspected. A low observed rate could indicate genuinely safer food, or it could indicate that a
+ZIP is under-inspected and its problems are simply not being detected. Section 6 tests this
+directly.
 """
 )
 

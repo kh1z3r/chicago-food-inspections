@@ -1,7 +1,7 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Chicago Food Inspections — Audit",
+    page_title="Chicago Food Inspections: Fairness Audit",
     page_icon="\U0001F37D️",
     layout="wide",
 )

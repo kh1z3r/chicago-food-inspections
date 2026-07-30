@@ -132,7 +132,7 @@ hr{ border:none; height:2px; background:var(--navy); opacity:1; margin:var(--spa
 /* ---- stat card (kept for pages that call stat_card) ---- */
 .riso-card{ background:var(--panel); border:2px solid var(--navy); border-radius:0;
   padding:1.15rem 1.3rem; height:100%; display:flex; flex-direction:column; }
-.riso-statcard{ box-shadow:inset 5px 0 0 var(--navy); min-height:150px; }
+.riso-statcard{ box-shadow:inset 5px 0 0 var(--navy); min-height:128px; justify-content:center; }
 .riso-statcard--red{ box-shadow:inset 5px 0 0 var(--red); }
 .riso-statcard .value{ font-family:var(--font-mono); font-weight:700; font-size:var(--fs-stat);
   line-height:1; color:var(--navy); white-space:nowrap; letter-spacing:-.02em; }
@@ -190,8 +190,11 @@ a:hover{ color:var(--red-ink); }
 
 /* ---- plotly chart frame (border-box so it never triggers an inner scrollbar) ---- */
 [data-testid="stPlotlyChart"]{ border:2px solid var(--navy); background:var(--panel);
-  box-sizing:border-box; overflow:hidden; }
-[data-testid="stPlotlyChart"] .modebar{ display:none!important; }
+  box-sizing:border-box; }
+/* modebar shows on hover; keep it unobtrusive and inside the frame */
+[data-testid="stPlotlyChart"] .modebar{ background:transparent!important; }
+[data-testid="stPlotlyChart"] .modebar-btn{ opacity:.55; }
+[data-testid="stPlotlyChart"] .modebar-btn:hover{ opacity:1; }
 
 /* ---- prev / next page nav (button-like, edge-aligned, hover-fill) ---- */
 .riso-pagenav{ border-top:2px solid var(--navy); margin-top:var(--space-section); margin-bottom:.4rem; }
@@ -216,9 +219,22 @@ a:hover{ color:var(--red-ink); }
 .riso-brand .bnames{ font-family:var(--font-body); font-size:.72rem; line-height:1.55;
   color:#B9C9DC; margin-top:.75rem; }
 
-/* ---- minimal page transition ---- */
-[data-testid="stMain"] .block-container{ animation:riso-fade .28s ease-out; }
-@keyframes riso-fade{ from{ opacity:0; transform:translateY(5px); } to{ opacity:1; transform:none; } }
+/* ---- key-in: content assembles top-down on load and on each page change ---- */
+/* Streamlit reuses element nodes across in-page widget reruns, so this fires on
+   page entry (fresh nodes) but not on every slider tick. */
+@keyframes riso-keyin{ from{ opacity:0; transform:translateY(11px); } to{ opacity:1; transform:none; } }
+.block-container > [data-testid="stVerticalBlock"] > *{
+  animation:riso-keyin .52s cubic-bezier(.22,.61,.36,1) both; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(1){ animation-delay:.02s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(2){ animation-delay:.08s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(3){ animation-delay:.14s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(4){ animation-delay:.20s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(5){ animation-delay:.26s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(6){ animation-delay:.31s; }
+.block-container > [data-testid="stVerticalBlock"] > *:nth-child(n+7){ animation-delay:.36s; }
+
+/* stat cards and findings ease in with a touch more travel for a tactile feel */
+.riso-card,.riso-finding{ animation:riso-keyin .5s cubic-bezier(.22,.61,.36,1) both; }
 
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{ transition:none!important; animation:none!important; } }
 """

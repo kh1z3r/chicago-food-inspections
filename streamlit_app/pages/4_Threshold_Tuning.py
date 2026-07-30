@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,11 +11,11 @@ eyebrow("Section 4")
 st.title("Can we fix the over-flagging with a stricter cutoff?")
 st.markdown(
     """
-The model flags "Fail" whenever its predicted probability crosses a cutoff — 0.5 by default.
-Because the models are trained with balanced class weights, they lean toward over-predicting
-Fail. Raising the cutoff trades away some recall for fewer false alarms citywide. Drag the
-slider to see that tradeoff — and watch what it does to the *gap* between the least- and
-most-flagged neighborhoods.
+The model classifies a restaurant as "Fail" whenever its predicted probability exceeds a cutoff,
+0.5 by default. Because the models are trained with balanced class weights, they tend to
+over-predict Fail. Raising the cutoff trades away some recall for fewer false positives citywide.
+Adjust the threshold below to observe that tradeoff, and note its effect on the *gap* between the
+least- and most-flagged neighborhoods.
 """
 )
 
@@ -31,7 +32,7 @@ def fpr_fn(yt, yp):
     return (yp[neg] == 1).mean() if neg.sum() else float("nan")
 
 
-threshold = st.slider("Decision threshold", 0.20, 0.85, 0.50, 0.01)
+threshold = st.slider("Decision threshold", 0.30, 0.80, 0.50, 0.01)
 
 pred = (proba >= threshold).astype(int)
 recall = recall_score(y, pred, zero_division=0)
@@ -41,13 +42,14 @@ f1 = f1_score(y, pred, zero_division=0)
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    stat_card(f"{recall:.1%}", "recall (real fails caught)")
+    stat_card(f"{recall:.1%}", "recall (true failures caught)")
 with c2:
     stat_card(f"{precision:.1%}", "precision")
 with c3:
     stat_card(f"{fpr:.1%}", "false-positive rate", flag=True)
 with c4:
     stat_card(f"{f1:.3f}", "F1")
+st.caption("These four metrics recompute live as you move the threshold above.")
 
 # --- per-ZIP FPR at this threshold ---
 df = pd.DataFrame({"Zip": zips, "y": y, "pred": pred})
@@ -63,18 +65,27 @@ if len(zip_fpr) >= 10:
 else:
     ratio = float("nan")
 
+# guard the display: an unbounded gap (lo == 0) reads as ">=50x", too few ZIPs as "n/a"
+if np.isfinite(ratio):
+    ratio_txt = f"{ratio:.1f}×"
+elif len(zip_fpr) >= 10:
+    ratio_txt = "≥ 50×"
+else:
+    ratio_txt = "n/a"
+
 st.divider()
 eyebrow("The tradeoff that matters most")
 c1, c2 = st.columns(2)
 with c1:
     stat_card(f"{zip_fpr.min():.1%} \u2013 {zip_fpr.max():.1%}", "per-ZIP false-positive rate range")
 with c2:
-    stat_card(f"{ratio:.1f}\u00d7", "top-vs-bottom decile ZIP ratio (higher = wider gap)", flag=True)
+    stat_card(ratio_txt, "top-vs-bottom decile ZIP ratio (higher = wider gap)", flag=True)
 
 st.markdown(
     """
-Try dragging the slider from **0.50 up toward 0.60**. Citywide false alarms drop a lot — but
-the top-vs-bottom-decile ratio *climbs*, not falls. At the notebook's tested thresholds:
+Raise the threshold from **0.50 toward 0.60**. Citywide false positives fall substantially, but
+the top-versus-bottom-decile ratio *increases* rather than decreases. At the thresholds tested in
+the notebook:
 """
 )
 
@@ -82,16 +93,21 @@ sweep = load_csv("threshold_sweep.csv")
 if sweep is not None:
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=sweep["threshold"], y=sweep["recall"], name="Recall",
-                              line=dict(color=RED, width=2)))
+                              line=dict(color=RED, width=2),
+                              hovertemplate="Recall: %{y:.1%}<extra></extra>"))
     fig.add_trace(go.Scatter(x=sweep["threshold"], y=sweep["precision"], name="Precision",
-                              line=dict(color=BLUE, width=2)))
+                              line=dict(color=BLUE, width=2),
+                              hovertemplate="Precision: %{y:.1%}<extra></extra>"))
     fig.add_trace(go.Scatter(x=sweep["threshold"], y=sweep["fpr"], name="FPR",
-                              line=dict(color=SLATE, width=2, dash="dot")))
-    fig.add_vline(x=threshold, line_dash="dash", line_color=INK)
+                              line=dict(color=SLATE, width=2, dash="dot"),
+                              hovertemplate="FPR: %{y:.1%}<extra></extra>"))
+    fig.add_vline(x=threshold, line_dash="dash", line_color=INK,
+                  annotation_text="your cutoff", annotation_position="top",
+                  annotation_font=dict(family="Space Mono, monospace", size=11, color=INK))
     style_figure(
         fig,
         xaxis_title="Threshold", yaxis_title="Rate", yaxis_tickformat=".0%",
-        height=380,
+        height=380, hovermode="x unified",
         legend=dict(orientation="h", y=1.1, font=dict(color=INK)),
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -100,12 +116,12 @@ else:
     missing_file_notice("threshold_sweep.csv")
 
 finding(
-    "Raising the threshold from 0.50 to 0.60 cuts citywide FPR from 44.5% to 16.2% — a big "
-    "improvement on paper. But the per-ZIP top-vs-bottom-decile ratio <b>widens from 5.4\u00d7 "
-    "to 21.8\u00d7</b>. Tightening the cutoff makes the model look better in aggregate while "
-    "making the gap between neighborhoods <i>worse</i> \u2014 low-FPR ZIPs improve further, "
-    "high-FPR ZIPs barely move. A single global threshold can't fix a disparity that lives "
-    "at the ZIP level."
+    "Raising the threshold from 0.50 to 0.60 reduces citywide FPR from 44.5% to 16.2%, a large "
+    "aggregate improvement. The per-ZIP top-versus-bottom-decile ratio, however, <b>widens from 5.4\u00d7 "
+    "to 21.8\u00d7</b>. Tightening the cutoff improves the model in aggregate while"
+    " widening the gap between neighborhoods: low-FPR ZIPs improve further while"
+    " high-FPR ZIPs change little. A single global threshold cannot correct a disparity that operates"
+    " at the ZIP level."
 )
 
 from utils import page_nav

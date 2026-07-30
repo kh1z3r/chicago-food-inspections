@@ -2,8 +2,11 @@ import streamlit as st
 import plotly.express as px
 from utils import (
     eyebrow, star_rule, finding, page_nav, load_csv, style_figure,
-    RED, FLAG_DIVERGING, _star_svg,
+    RED, RED_SEQUENTIAL, _star_svg,
 )
+
+MAP_CONFIG = {"displayModeBar": True, "scrollZoom": True, "displaylogo": False,
+              "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
 
 stars = "".join(_star_svg(RED, 22) for _ in range(4))
 st.markdown(
@@ -12,7 +15,7 @@ st.markdown(
 <div class="stars">{stars}</div>
 <div class="kicker">An AI4ALL Ignite project by Group 11D</div>
 <div class="title">Predicting Failure,<br>Auditing Fairness</div>
-<div class="sub">We trained a model to predict which Chicago restaurants fail inspection, then audited who its mistakes fall on. The city already predicts well; the sharper question is <strong>who the model gets wrong, and where.</strong></div>
+<div class="sub">We trained a model to predict which Chicago restaurants fail inspection, then audited whom its errors fall on. The model predicts failure well; the substantive question is <strong>where it errs, and for whom.</strong></div>
 <div class="team">Nguyen, Wonsowicz, Gullany, Jacob, Butt, Agrawal</div>
 </div>
 """,
@@ -23,8 +26,8 @@ st.markdown(
     """
 <div class="riso-ribbon">
 <div class="cell harm"><div class="v">67%</div><div class="l">chance a passing restaurant is wrongly flagged in the most-flagged ZIP (60620)</div></div>
-<div class="cell"><div class="v">6%</div><div class="l">the same odds in the Loop downtown</div></div>
-<div class="cell harm"><div class="v">12×</div><div class="l">gap in false-alarm rate, most- vs least-flagged neighborhood</div></div>
+<div class="cell"><div class="v">6%</div><div class="l">the same odds in the Loop downtown (ZIP 60604)</div></div>
+<div class="cell harm"><div class="v">12×</div><div class="l">higher false-positive rate in the most-flagged ZIP than in the Loop</div></div>
 <div class="cell"><div class="v">24.6%</div><div class="l">of predictions flip when ZIP is removed from the model</div></div>
 </div>
 """,
@@ -33,13 +36,13 @@ st.markdown(
 
 st.markdown(
     """
-Every year the CDC estimates roughly **48 million** Americans get sick, **128,000** are
-hospitalized, and **3,000** die from foodborne illness. Chicago inspects restaurants to catch
-problems early, but with far too few inspectors to visit every kitchen often, so *where* to send
-them first is a real, high-stakes question. We predict inspection failures from information
-available *before* the inspection (facility type, risk level, inspection type, and ZIP), then ask
-whether those predictions differ across ZIP codes because of real food-safety risk, or because of
-how unevenly enforcement itself is distributed.
+Each year the CDC estimates that roughly **48 million** Americans contract a foodborne illness,
+**128,000** are hospitalized, and **3,000** die. Chicago inspects restaurants to detect problems
+early, but has far fewer inspectors than visiting every establishment frequently would require, so
+prioritizing which establishments to inspect is a consequential decision. We predict inspection
+failures from information available *before* the inspection (facility type, risk level, inspection
+type, and ZIP code), then test whether those predictions differ across ZIP codes because of genuine
+food-safety risk or because of how unevenly enforcement itself is distributed.
 """
 )
 
@@ -77,16 +80,17 @@ if flip is not None and geo is not None:
     m = flip.merge(geo, on="Zip", how="inner")
     fig = px.scatter_mapbox(
         m, lat="Latitude", lon="Longitude", color="true_fail_rate", size="n_test",
-        size_max=26, color_continuous_scale=FLAG_DIVERGING, hover_name="Zip",
+        size_max=26, color_continuous_scale=RED_SEQUENTIAL, hover_name="Zip",
         hover_data={"true_fail_rate": ":.1%", "n_test": True, "Latitude": False, "Longitude": False},
-        zoom=9, height=520, labels={"true_fail_rate": "Fail rate"},
+        zoom=9, height=520,
+        labels={"true_fail_rate": "Fail rate", "n_test": "Test inspections"},
     )
     style_figure(
-        fig, mapbox_style="carto-positron", margin=dict(l=0, r=0, t=0, b=0),
+        fig, mapbox_style="carto-positron", margin=dict(l=0, r=8, t=0, b=0),
         coloraxis_colorbar=dict(title="Fail rate", tickformat=".0%"),
     )
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption("Bubble size = number of test-set inspections in that ZIP. Color = observed fail rate.")
+    st.plotly_chart(fig, use_container_width=True, config=MAP_CONFIG)
+    st.caption("Bubble size = number of test-set inspections in that ZIP (reliability). Color = observed fail rate.")
 else:
     st.info("Map needs `zip_flip_summary.csv` and `zip_centroids.csv` in `artifacts/`.")
 
@@ -94,22 +98,22 @@ star_rule()
 eyebrow("What's in this report")
 st.markdown(
     """
-Walk the audit in order, using the arrows below or the sidebar:
+The audit proceeds in order. Use the arrows below or the sidebar to navigate.
 
-1. **Model Performance** — do the models actually beat guessing?
-2. **What Drives Predictions** — which features matter most?
-3. **Neighborhood Effect** — does the model lean on ZIP code specifically?
-4. **Threshold Tuning** — the recall / false-alarm tradeoff, live
-5. **Fairness Audit** — which ZIP codes get over- or under-flagged?
-6. **Enforcement Check** — is the gap about food safety, or about who gets inspected?
-7. **Conclusions** — what we found, and what we can't claim
+1. **Model Performance**: do the trained models outperform a naive baseline?
+2. **What Drives Predictions**: which features carry the most signal?
+3. **Neighborhood Effect**: does the model depend specifically on ZIP code?
+4. **Threshold Tuning**: the recall versus false-positive tradeoff, interactive.
+5. **Fairness Audit**: which ZIP codes are over- or under-flagged?
+6. **Enforcement Check**: is the disparity driven by food safety or by inspection mix?
+7. **Conclusions**: the findings and their limitations.
 """
 )
 finding(
-    "The headline, previewed: ZIP code barely improves the model overall, yet it reshuffles "
-    "roughly a quarter of individual predictions, almost entirely by lowering flagged risk in "
-    "low-fail-rate neighborhoods, and the ZIPs with the highest false-positive rates are the "
-    "same ones with the most enforcement-heavy inspection mix."
+    "Principal finding, in brief: ZIP code contributes little to overall model quality, yet it "
+    "reshuffles roughly a quarter of individual predictions, almost entirely by lowering flagged "
+    "risk in low-fail-rate neighborhoods. The ZIP codes with the highest false-positive rates are "
+    "also the ones with the most enforcement-heavy inspection mix."
 )
 
 page_nav(next=("pages/1_Model_Performance.py", "Model Performance"))

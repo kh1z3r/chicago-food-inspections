@@ -9,10 +9,10 @@ from utils import apply_theme, eyebrow, stat_card, finding, load_parquet, requir
 eyebrow("Section 1")
 st.title("Does the model actually work?")
 st.markdown(
-    "Three predictors, same test set: a **naive baseline** that always guesses \"Pass\", "
-    "**Logistic Regression**, and **Random Forest**. We grade them on **recall** — of the "
-    "restaurants that truly failed, how many did each model catch? — since missing a real "
-    "food-safety problem is the costly mistake here."
+    "Three predictors, evaluated on the same held-out test set: a **naive baseline** that always "
+    "predicts \"Pass\", **Logistic Regression**, and **Random Forest**. The primary metric is "
+    "**recall**, the fraction of truly failing restaurants each model correctly flagged. Recall is "
+    "prioritized here because a missed failure (an uncaught food-safety hazard) is the costlier error."
 )
 
 test = load_parquet("test_predictions.parquet")
@@ -37,7 +37,7 @@ rows = [
 mt = pd.DataFrame(rows)
 
 st.divider()
-eyebrow("Head-to-head at the default 0.5 cutoff")
+eyebrow("Performance at the default 0.5 cutoff")
 st.subheader("Recall, precision, and F1")
 
 cols = st.columns(3)
@@ -48,26 +48,32 @@ for col, r in zip(cols, rows):
         st.metric("Precision (flags that were real)", f"{r['precision']:.1%}")
         st.metric("F1", f"{r['f1']:.3f}")
 
+# recall and precision are rates, so they belong on the % axis; F1 is a 0-1 score shown in the cards above.
+_melt = mt.melt(id_vars="model", value_vars=["recall", "precision"], var_name="metric", value_name="score")
+_melt["metric"] = _melt["metric"].str.capitalize()
 fig = px.bar(
-    mt.melt(id_vars="model", value_vars=["recall", "precision", "f1"], var_name="metric", value_name="score"),
-    x="model", y="score", color="metric", barmode="group",
-    color_discrete_map={"recall": RED, "precision": BLUE, "f1": SLATE},
-    height=380,
+    _melt, x="model", y="score", color="metric", barmode="group",
+    color_discrete_map={"Recall": BLUE, "Precision": RED},
+    labels={"model": "Model", "score": "Score", "metric": "Metric"}, height=380,
 )
+fig.update_traces(hovertemplate="%{x}<br>%{fullData.name}: %{y:.1%}<extra></extra>")
+fig.add_annotation(x="Naive baseline", y=0.015, text="0%", showarrow=False,
+                   font=dict(family="Space Mono, monospace", size=12, color=INK))
 style_figure(fig, yaxis_tickformat=".0%", height=380)
 st.plotly_chart(fig, use_container_width=True)
 
 finding(
-    "Both real models jump from <b>0% recall</b> (the naive baseline) to roughly "
-    "<b>67&ndash;70%</b> — clear evidence the four features carry real signal. Logistic "
-    "Regression edges out Random Forest on recall (69.8% vs 66.9%), which is a bit "
-    "surprising given Random Forest is usually the stronger model of the two."
+    "Both trained models rise from <b>0% recall</b> (the naive baseline) to roughly "
+    "<b>67% to 70%</b>, evidence that the four features carry real predictive signal. Logistic "
+    "Regression slightly outperforms Random Forest on recall (69.8% versus 66.9%), a mild reversal "
+    "of the usual expectation that Random Forest is the stronger of the two."
 )
 
 st.divider()
-eyebrow("The cost side")
+eyebrow("The cost of false positives")
 st.subheader("Confusion matrices")
-st.caption("TN = correctly cleared,  FP = false alarm,  FN = missed a real fail,  TP = correctly flagged")
+st.caption("TN = correctly cleared,  FP = false positive (passed, flagged Fail),  "
+           "FN = missed failure (failed, cleared),  TP = correctly flagged")
 
 cols = st.columns(3)
 for col, r in zip(cols, rows):
@@ -77,22 +83,22 @@ for col, r in zip(cols, rows):
             z=z,
             x=["Pred: Pass", "Pred: Fail"],
             y=["True: Pass", "True: Fail"],
-            colorscale=[[0, "#FFFFFF"], [1, RED]],
-            showscale=False,
+            colorscale=[[0, "#FFFFFF"], [1, BLUE]],
+            showscale=False, hoverinfo="skip",
         ))
         label_heatmap_cells(fig, z)
         style_figure(fig, title=r["model"], height=300, margin=dict(l=10, r=10, t=40, b=10))
         st.plotly_chart(fig, use_container_width=True)
 
 finding(
-    "Precision sits around <b>30%</b> for both real models — about 7 in 10 flagged "
-    "restaurants turn out fine. That's a real operational cost, though not necessarily "
-    "disqualifying: missing a genuine hazard is usually worse than an extra inspection visit."
+    "Precision is approximately <b>30%</b> for both trained models: about 7 in 10 flagged "
+    "restaurants pass. This is a substantial operational cost, though not necessarily "
+    "disqualifying, since a missed hazard is generally worse than one additional inspection visit."
 )
 
 st.divider()
 eyebrow("Is the model's confidence trustworthy?")
-st.subheader("Calibration: what the model says vs. what actually happens")
+st.subheader("Calibration: predicted probability versus observed failure rate")
 
 from utils import load_csv
 cal = load_csv("calibration_curve.csv")
@@ -100,9 +106,10 @@ cal = load_csv("calibration_curve.csv")
 if cal is not None:
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode="lines", name="Perfectly calibrated",
-                              line=dict(color=SLATE, dash="dash")))
+                              line=dict(color=SLATE, dash="dash"), hoverinfo="skip"))
     fig.add_trace(go.Scatter(x=cal["predicted"], y=cal["actual"], mode="lines+markers",
-                              name="Random Forest", line=dict(color=RED, width=3)))
+                              name="Random Forest", line=dict(color=RED, width=3),
+                              hovertemplate="Predicted %{x:.0%}<br>Actual %{y:.0%}<extra>Random Forest</extra>"))
     style_figure(
         fig,
         xaxis_title="Predicted probability of Fail",
@@ -113,12 +120,12 @@ if cal is not None:
     st.plotly_chart(fig, use_container_width=True)
 
     finding(
-        "The model is <b>overconfident</b>: when it says a restaurant has an 83% chance of "
-        "failing, only about 43% actually do. Log loss confirms this &mdash; both trained "
-        "models score <i>worse</i> than a naive constant-probability baseline (0.658 and "
-        "0.701 vs. 0.533), meaning their confidence scores shouldn't be read at face value "
-        "even though their yes/no calls beat the baseline. Read Fail/Pass predictions here "
-        "as a ranked prioritization signal, not a calibrated risk percentage."
+        "The model is <b>overconfident</b>: among restaurants it assigns an 83% probability of "
+        "failing, only about 43% actually fail. Log loss confirms this. Both trained models score "
+        "<i>worse</i> than a naive constant-probability baseline (0.658 and 0.701 versus 0.533), so "
+        "their probability estimates should not be read at face value even though their Pass/Fail "
+        "classifications outperform the baseline. Interpret the predictions as a ranked "
+        "prioritization signal, not as calibrated risk percentages."
     )
 else:
     from utils import missing_file_notice
