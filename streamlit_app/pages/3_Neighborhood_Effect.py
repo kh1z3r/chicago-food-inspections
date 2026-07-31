@@ -131,9 +131,9 @@ st.markdown(
     and how often an area gets inspected, and how thoroughly, is not the same everywhere.
     A ZIP code with low fail rates could mean it has safer restaurants, or it could mean it
     is inspected less often, so problems don't get caught and recorded in the first place. 
-    This gets further investigated in Section 6.
+    This gets further investigated in Section 5.
 """
 )
 
 from utils import page_nav
-page_nav(prev=("pages/2_What_Drives_Predictions.py", "What Drives Predictions"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))
+page_nav(prev=("pages/1_Model_Performance.py", "Model Performance"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))

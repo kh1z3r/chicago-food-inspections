@@ -90,12 +90,11 @@ st.markdown(
 The audit proceeds in order. Use the arrows below or the sidebar to navigate.
 
 1. **Model Performance**: do the trained models outperform a naive baseline?
-2. **What Drives Predictions**: which features carry the most signal?
-3. **Neighborhood Effect**: does the model depend specifically on ZIP code?
-4. **Threshold Tuning**: the recall versus false-positive tradeoff, interactive.
-5. **Fairness Audit**: which ZIP codes are over- or under-flagged?
-6. **Enforcement Check**: is the disparity driven by food safety or by inspection mix?
-7. **Conclusions**: the findings and their limitations.
+2. **Neighborhood Effect**: does the model depend specifically on ZIP code?
+3. **Threshold Tuning**: the recall versus false-positive tradeoff, interactive.
+4. **Fairness Audit**: which ZIP codes are over- or under-flagged?
+5. **Enforcement Check**: is the disparity driven by food safety or by inspection mix?
+6. **Conclusions**: the findings and their limitations.
 """
 )
 

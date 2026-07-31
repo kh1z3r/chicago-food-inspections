@@ -7,7 +7,7 @@ from sklearn.metrics import recall_score, precision_score, f1_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, SLATE, style_figure
 
 
-eyebrow("Section 4")
+eyebrow("Section 3")
 st.title("Can we fix the over-flagging with a stricter cutoff?")
 st.markdown(
     """

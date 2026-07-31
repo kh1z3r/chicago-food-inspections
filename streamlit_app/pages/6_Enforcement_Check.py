@@ -3,91 +3,71 @@ import plotly.express as px
 import plotly.graph_objects as go
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, require, BLUE, RED, INK, NAVY_2, style_figure
 
-
 eyebrow("The decisive test")
 st.title("Is the over-flagging about food safety, or about who gets inspected?")
+
 st.markdown(
     """
-Complaint and Re-Inspection visits target establishments already under suspicion, so a ZIP with
-more of those inspection types can appear worse for reasons unrelated to hygiene. We run two
-tests: recompute the false-positive rate using **only routine Canvass inspections**, and test
-whether a ZIP's overall FPR tracks how **enforcement-heavy** its inspection mix is.
+Some inspections only happen because of a complaint, or because a restaurant failed before
+and is being re-checked. Those visits target places already under suspicion — so a ZIP code
+with a lot of these visits can look "worse" in the data even if the food isn't actually worse.
+
+To check this, we ran two tests:
+1. Recalculate the false-alarm rate using **only routine, scheduled inspections** — the ones
+   nobody specifically flagged.
+2. Check whether ZIP codes with more complaint-driven inspections also have more false alarms.
 """
 )
 
 cmp = load_csv("zip_enforcement_compare.csv")
 require(cmp, "zip_enforcement_compare.csv")
-
 corr = cmp["FPR_all"].corr(cmp["enf_share"])
 
 st.divider()
-c1, c2, c3 = st.columns(3)
+c1, c2 = st.columns(2)
 with c1:
-    stat_card("44.5%", "citywide FPR, all inspection types")
+    stat_card("44.5%", "how often the model falsely flags a restaurant, citywide")
 with c2:
-    stat_card("50.2%", "citywide FPR, Canvass (routine) only", flag=True)
-with c3:
-    stat_card(f"{corr:.2f}", "corr: ZIP's FPR vs. its enforcement share", flag=True)
+    stat_card(f"{corr:.2f}", "how closely false alarms track complaint-driven inspections", flag=True)
 
 st.markdown(
-    "*(\"Enforcement share\" = the fraction of a ZIP's test-set inspections that were "
-    "Complaint- or Re-Inspection-driven, rather than routine Canvass.)*"
+    "*(A ZIP code's \"enforcement share\" is the percent of its inspections that were "
+    "triggered by a complaint or a re-check — not a routine, scheduled visit.)*"
 )
 
 st.divider()
-eyebrow("Restricting to routine inspections only")
-st.subheader("Removing enforcement-triggered visits does not shrink the over-flagging")
-
-st.caption("Top 15 over-flagged ZIPs: all inspection types vs. routine-only Canvass.")
-top = cmp.sort_values("FPR_all", ascending=False).head(15)
-fig = go.Figure()
-fig.add_trace(go.Bar(x=top["Zip"].astype(str), y=top["FPR_all"], name="FPR, all types",
-                     marker_color=BLUE,
-                     hovertemplate="ZIP %{x}<br>All types: %{y:.1%}<extra></extra>"))
-fig.add_trace(go.Bar(x=top["Zip"].astype(str), y=top["FPR_canvass"], name="FPR, Canvass only",
-                     marker_color=RED,
-                     hovertemplate="ZIP %{x}<br>Canvass only: %{y:.1%}<extra></extra>"))
-style_figure(
-    fig,
-    barmode="group", xaxis_title="ZIP", yaxis_title="False-positive rate", yaxis_tickformat=".0%",
-    height=430, margin=dict(l=58, r=26, t=52, b=50),
-    legend=dict(orientation="h", y=1.09, x=0, font=dict(color=INK)),
-)
-fig.update_xaxes(type="category")   # ZIP codes are labels, not a numeric scale
-st.plotly_chart(fig, use_container_width=True)
-
 finding(
-    "Restricting to routine Canvass inspections does not shrink the gap. If anything, the "
-    "spread widens (0.0% to 99% for Canvass-only versus 1.8% to 67.1% across ZIPs for all "
-    "types). The over-flagging is not an artifact of complaint-driven visits inflating the "
-    "counts; it appears even in inspections that were not specifically triggered."
+    "Test 1 result: restricting to only routine inspections doesn't fix the problem — the "
+    "false-alarm rate is actually slightly higher (50.2%) than the citywide rate across all "
+    "inspection types (44.5%). This tells us the problem isn't caused by complaint-driven "
+    "visits skewing the numbers. It shows up even in inspections nobody specifically triggered."
 )
 
 st.divider()
-eyebrow("Does enforcement intensity predict the false-positive rate?")
-st.subheader("FPR versus enforcement share, by ZIP")
+eyebrow("Test 2")
+st.subheader("Do more complaint-driven inspections mean more false alarms?")
 
 fig = px.scatter(
     cmp, x="enf_share", y="FPR_all", hover_name="Zip",
     color_discrete_sequence=[RED], trendline="ols", trendline_color_override=NAVY_2,
-    labels={"enf_share": "Enforcement share (Complaint + Re-Inspection %)", "FPR_all": "False-positive rate"},
+    labels={"enf_share": "Share of inspections that were complaint-driven", "FPR_all": "False-alarm rate"},
     height=440,
 )
 fig.update_traces(marker=dict(size=9),
-                  hovertemplate="ZIP %{hovertext}<br>Enforcement share: %{x:.0%}"
-                                "<br>False-positive rate: %{y:.0%}<extra></extra>",
+                  hovertemplate="ZIP %{hovertext}<br>Complaint-driven share: %{x:.0%}"
+                                "<br>False-alarm rate: %{y:.0%}<extra></extra>",
                   selector=dict(mode="markers"))
 style_figure(fig, xaxis_tickformat=".0%", yaxis_tickformat=".0%", height=440)
 st.plotly_chart(fig, use_container_width=True)
 
+
+
 finding(
-    f"A ZIP's false-positive rate correlates <b>{corr:.2f}</b> with how enforcement-heavy "
-    "its inspection mix is. This is the strongest evidence in the project for the "
-    "enforcement-bias hypothesis stated in our proposal: ZIPs with more complaint- and "
-    "re-inspection-driven visits are systematically over-flagged as Fail-risk, beyond what "
-    "their facility type and risk level alone would predict. This is a correlation, not proof "
-    "of causation. It is nonetheless consistent with enforcement intensity itself, not only "
-    "underlying food safety, shaping the model's predictions."
+    f"The more a ZIP code's inspections are complaint-driven, the more "
+    f"often that ZIP's restaurants get falsely flagged ({corr:.2f} out of a possible 1.0. "
+    " Put simply: it's not just about which restaurants "
+    "are riskiest — it's also about how a neighborhood gets policed. This is a pattern, not "
+    "proof of cause and effect."
 )
 
 from utils import page_nav

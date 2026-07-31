@@ -129,4 +129,4 @@ else:
     missing_file_notice("calibration_curve.csv")
 
 from utils import page_nav
-page_nav(prev=("home.py", "Overview"), next=("pages/2_What_Drives_Predictions.py", "What Drives Predictions"))
+page_nav(prev=("home.py", "Overview"), next=("pages/3_Neighborhood_Effect.py", "Neighborhood Effect"))

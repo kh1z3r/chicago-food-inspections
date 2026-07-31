@@ -11,31 +11,17 @@ finding(
     "both trained models catch 67% to 70% of true failures, versus 0% for a naive baseline "
     "that always predicts Pass."
 )
+
 finding(
-    "The models are poorly calibrated: their probability estimates overstate risk, especially "
-    "at the high end. Treat the outputs as a ranking for prioritization, not as trustworthy "
-    "probabilities."
+    "Some ZIP codes get false-alarmed far more than others — the worst is 1.5× the citywide rate. "
+    "Making the model stricter overall doesn't fix this and actually widens the gap, " 
+    "since the neighborhoods already doing well improve even more. "
+    "This is a ZIP-level problem, and a citywide fix can't solve it."
 )
 finding(
-    "Inspection type and ZIP code drive predictions more than the restaurant's own declared "
-    "risk level does."
-)
-finding(
-    "ZIP code's effect on overall model quality is modest (a ~5% relative PR-AUC drop when "
-    "removed) but concentrated and directional: it reshuffles about a quarter of individual "
-    "predictions, almost entirely by lowering flagged risk in already-low-fail-rate ZIPs."
-)
-finding(
-    "False-positive rates vary widely by ZIP (the worst is roughly 1.5&times; the citywide "
-    "rate), and tightening the global decision threshold makes this neighborhood gap "
-    "<i>worse</i>, not better. A single citywide cutoff cannot correct a disparity that "
-    "operates at the ZIP level."
-)
-finding(
-    "A ZIP's false-positive rate correlates strongly (0.69) with how enforcement-heavy its "
-    "inspection mix is, and the gap persists even when restricted to routine inspections only. "
-    "This is the strongest evidence here that enforcement patterns, not only food safety, shape "
-    "which neighborhoods are flagged."
+    "A ZIP's false-alarm rate closely tracks how much of its inspections are complaint-driven — "
+    "and this holds true even when we only look at routine inspections. " 
+    "This is our strongest evidence that enforcement patterns, not just food safety, drive which neighborhoods get flagged."
 )
 
 st.divider()
@@ -48,13 +34,13 @@ st.markdown(
 - **Observed fail rate is not the same as true risk.** A low fail rate in a ZIP could reflect
   genuinely safer food, or it could reflect under-inspection; we cannot fully separate these
   two explanations with this dataset alone.
-- **Miscalibrated probabilities.** Neither model's probability estimates should be read as
-  literal risk percentages; only the ranked prioritization and the Pass/Fail classifications
-  are validated.
 - **Precision remains low (approximately 30%) at any threshold we tested that preserves useful
   recall.** Deployed as-is, a majority of flagged restaurants would in fact pass.
 - **This is retrospective, historical data.** It reflects Chicago's past enforcement patterns
   and cannot indicate whether a *different* inspection policy would produce different outcomes.
+- **Narrow feature set**. We use only four fields: facility type, risk level, inspection type, ZIP code,
+  leaving out other relevant data like violation history or building age. More data could improve accuracy, but could make the model better at repeating the same enforcement bias
+  we found, instead of fixing it.
 """
 )
 
