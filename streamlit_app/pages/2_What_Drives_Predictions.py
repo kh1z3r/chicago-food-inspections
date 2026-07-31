@@ -8,8 +8,7 @@ st.title("What does the model actually lean on?")
 st.markdown(
     """
 We use **permutation importance**: shuffle one feature's values in the test set and measure how
-much the model's Fail-recall drops. A larger drop indicates the model relied on that feature more.
-Each feature is shuffled as a single group, including all ZIP-code columns together.
+much the model's Fail-recall drops.
 """
 )
 
@@ -53,7 +52,7 @@ finding(
 
 st.markdown(
     """
-This ranking alone does not settle the fairness question. A feature can be important for benign
+This ranking alone does not settle the fairness question. A feature can be important for valid
 reasons (it reflects real risk) or for concerning ones (it reflects uneven enforcement). The next
 section tests this directly by removing ZIP code entirely and comparing what changes.
 """
