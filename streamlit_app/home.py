@@ -15,24 +15,13 @@ st.markdown(
 <div class="stars">{stars}</div>
 <div class="kicker">An AI4ALL Ignite project by Group 11D</div>
 <div class="title">Predicting Failure,<br>Auditing Fairness</div>
-<div class="sub">We trained a model to predict which Chicago restaurants fail inspection, then audited whom its errors fall on. The model predicts failure well; the substantive question is <strong>where it errs, and for whom.</strong></div>
+<div class="sub">We trained a model to predict which Chicago restaurants fail inspection, then audited whom its errors fall on. The model predicts failure well, and the substantive question is <strong>where it errors, and for whom.</strong></div>
 <div class="team">Nguyen, Wonsowicz, Gullany, Jacob, Butt, Agrawal</div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-st.markdown(
-    """
-<div class="riso-ribbon">
-<div class="cell harm"><div class="v">67%</div><div class="l">chance a passing restaurant is wrongly flagged in the most-flagged ZIP (60620)</div></div>
-<div class="cell"><div class="v">6%</div><div class="l">the same odds in the Loop downtown (ZIP 60604)</div></div>
-<div class="cell harm"><div class="v">12×</div><div class="l">higher false-positive rate in the most-flagged ZIP than in the Loop</div></div>
-<div class="cell"><div class="v">24.6%</div><div class="l">of predictions flip when ZIP is removed from the model</div></div>
-</div>
-""",
-    unsafe_allow_html=True,
-)
 
 st.markdown(
     """
@@ -109,11 +98,6 @@ The audit proceeds in order. Use the arrows below or the sidebar to navigate.
 7. **Conclusions**: the findings and their limitations.
 """
 )
-finding(
-    "Principal finding, in brief: ZIP code contributes little to overall model quality, yet it "
-    "reshuffles roughly a quarter of individual predictions, almost entirely by lowering flagged "
-    "risk in low-fail-rate neighborhoods. The ZIP codes with the highest false-positive rates are "
-    "also the ones with the most enforcement-heavy inspection mix."
-)
+
 
 page_nav(next=("pages/1_Model_Performance.py", "Model Performance"))
