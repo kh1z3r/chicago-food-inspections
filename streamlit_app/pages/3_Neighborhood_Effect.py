@@ -136,4 +136,4 @@ st.markdown(
 )
 
 from utils import page_nav
-page_nav(prev=("pages/1_Model_Performance.py", "Model Performance"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))
+page_nav(prev=("pages/2_What_Drives_Predictions", "What Drives Predictions"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))
