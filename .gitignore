@@ -11,4 +11,6 @@ streamlit_app/artifacts/threshold_sweep.csv
 streamlit_app/artifacts/calibration_curve.csv
 streamlit_app/artifacts/zip_centroids.csv
 
-streamlit_app/venv
+streamlit_app/.venv
+streamlit_app/pyvenv.cfg
+streamlit_app/__pycache__

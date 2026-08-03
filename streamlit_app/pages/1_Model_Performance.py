@@ -65,15 +65,14 @@ st.plotly_chart(fig, use_container_width=True)
 finding(
     "Both trained models rise from <b>0% recall</b> (the naive baseline) to roughly "
     "<b>67% to 70%</b>, evidence that the four features carry real predictive signal. Logistic "
-    "Regression slightly outperforms Random Forest on recall (69.8% versus 66.9%), a mild reversal "
-    "of the usual expectation that Random Forest is the stronger of the two."
+    "Regression slightly outperforms Random Forest on recall (69.8% versus 66.9%)."
 )
 
 st.divider()
 eyebrow("The cost of false positives")
 st.subheader("Confusion matrices")
-st.caption("TN = correctly cleared,  FP = false positive (passed, flagged Fail),  "
-           "FN = missed failure (failed, cleared),  TP = correctly flagged")
+st.caption("FN = missed fail (top left),  TP = correctly flagged fail (top right)  "
+           "TN = correctly flagged pass (bottom left),  FP = missed pass (bottom right)")
 
 cols = st.columns(3)
 for col, r in zip(cols, rows):
@@ -91,9 +90,9 @@ for col, r in zip(cols, rows):
         st.plotly_chart(fig, use_container_width=True)
 
 finding(
-    "Precision is approximately <b>30%</b> for both trained models: about 7 in 10 flagged "
-    "restaurants pass. This is a substantial operational cost, though not necessarily "
-    "disqualifying, since a missed hazard is generally worse than one additional inspection visit."
+    "Why predict failures over passes? We want to build our model around minimizing real failures."
+    "We would rather overflag and verify a restaurant than underflag and miss a mistake."
+    "This decision brings more importance towards recall rather than accuracy."
 )
 
 st.divider()
@@ -121,11 +120,9 @@ if cal is not None:
 
     finding(
         "The model is <b>overconfident</b>: among restaurants it assigns an 83% probability of "
-        "failing, only about 43% actually fail. Log loss confirms this. Both trained models score "
-        "<i>worse</i> than a naive constant-probability baseline (0.658 and 0.701 versus 0.533), so "
-        "their probability estimates should not be read at face value even though their Pass/Fail "
-        "classifications outperform the baseline. Interpret the predictions as a ranked "
-        "prioritization signal, not as calibrated risk percentages."
+        "failing, only about 43% actually fail. Log loss confirms this. However, this in fact "
+        "supports our decision where we are prioritizing overflagging errors, as we would rather " 
+        "risk being wrong about failing, than being wrong about passing and letting a failing health restaurant continue operations."
     )
 else:
     from utils import missing_file_notice

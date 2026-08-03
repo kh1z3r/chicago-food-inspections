@@ -7,7 +7,7 @@ from sklearn.metrics import recall_score, precision_score, f1_score
 from utils import apply_theme, eyebrow, stat_card, finding, load_csv, load_parquet, require, BLUE, RED, INK, SLATE, style_figure
 
 
-eyebrow("Section 4")
+eyebrow("Section 3")
 st.title("Can we fix the over-flagging with a stricter cutoff?")
 st.markdown(
     """
@@ -74,20 +74,8 @@ else:
     ratio_txt = "n/a"
 
 st.divider()
-eyebrow("The tradeoff that matters most")
-c1, c2 = st.columns(2)
-with c1:
-    stat_card(f"{zip_fpr.min():.1%} \u2013 {zip_fpr.max():.1%}", "per-ZIP false-positive rate range")
-with c2:
-    stat_card(ratio_txt, "top-vs-bottom decile ZIP ratio (higher = wider gap)", flag=True)
 
-st.markdown(
-    """
-Raise the threshold from **0.50 toward 0.60**. Citywide false positives fall substantially, but
-the top-versus-bottom-decile ratio *increases* rather than decreases. At the thresholds tested in
-the notebook:
-"""
-)
+
 
 sweep = load_csv("threshold_sweep.csv")
 if sweep is not None:
@@ -102,7 +90,7 @@ if sweep is not None:
                               line=dict(color=SLATE, width=2, dash="dot"),
                               hovertemplate="FPR: %{y:.1%}<extra></extra>"))
     fig.add_vline(x=threshold, line_dash="dash", line_color=INK,
-                  annotation_text="your cutoff", annotation_position="top",
+                  annotation_text="-", annotation_position="top",
                   annotation_font=dict(family="Space Mono, monospace", size=11, color=INK))
     style_figure(
         fig,
@@ -116,12 +104,9 @@ else:
     missing_file_notice("threshold_sweep.csv")
 
 finding(
-    "Raising the threshold from 0.50 to 0.60 reduces citywide FPR from 44.5% to 16.2%, a large "
-    "aggregate improvement. The per-ZIP top-versus-bottom-decile ratio, however, <b>widens from 5.4\u00d7 "
-    "to 21.8\u00d7</b>. Tightening the cutoff improves the model in aggregate while"
-    " widening the gap between neighborhoods: low-FPR ZIPs improve further while"
-    " high-FPR ZIPs change little. A single global threshold cannot correct a disparity that operates"
-    " at the ZIP level."
+    "Increasing the decision threshold from 0.50 reveals higher precision rates, at the expense of lower recall. "
+    "Decreasing the decision threshold from 0.50 increases our recall, yet decreases our precision. As we lower the "
+    "threshold of how many can pass, we end up predicting more will fail, but this adds more false positives, decreasing our precision."
 )
 
 from utils import page_nav

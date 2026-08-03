@@ -14,13 +14,9 @@ st.markdown(
     """
 We trained the same Random Forest twice on the identical split, once **with** ZIP code as a
 feature and once **without**, then compared them by **PR-AUC** (precision-recall area under the
-curve) rather than recall alone. Recall at a single cutoff is misleading here: removing a feature
-can shift precision and recall in opposite directions without changing overall model quality.
-PR-AUC summarizes performance across every cutoff at once, and it is the appropriate measure for
-imbalanced data like this (22% Fail) because it is not inflated by the large number of easily
-classified true negatives.
-"""
+curve) rather than recall alone. """
 )
+
 
 test = load_parquet("test_predictions.parquet")
 require(test, "test_predictions.parquet")
@@ -124,22 +120,20 @@ with c3:
 finding(
     "Flips are almost entirely one-directional: adding ZIP predominantly makes the model "
     f"<b>more lenient</b> ({down_avg:.1%} flip down versus only {up_avg:.1%} flip up). The "
-    f"correlation between flip rate and true fail rate is <b>strongly negative ({corr:.2f})</b>: "
-    "ZIP changes predictions most in neighborhoods that <i>already</i> have the lowest observed "
-    "fail rates. It functions as a local base-rate correction, lowering over-predictions in "
-    "low-fail-rate areas rather than adding scrutiny elsewhere."
+    f"lenient effect is strongest in ZIP codes that already have low real fail rates ({corr:.2f})</b>. "
+    "Zip codes aren't randomly nudging predictions around, they are specifically dialing back a 'Fail' prediction "
+    " that other features would have arrived towards."
 )
 
 st.markdown(
     """
-This is a more reassuring pattern than "ZIP is inflating risk in already low-fail-rate
-neighborhoods." It carries an important caveat, however, central to this project: an *observed*
-fail rate reflects both true food safety **and** how often and in what manner a neighborhood is
-inspected. A low observed rate could indicate genuinely safer food, or it could indicate that a
-ZIP is under-inspected and its problems are simply not being detected. Section 6 tests this
-directly.
+    We only know how often a ZIP code actually fails based on past inspections
+    and how often an area gets inspected, and how thoroughly, is not the same everywhere.
+    A ZIP code with low fail rates could mean it has safer restaurants, or it could mean it
+    is inspected less often, so problems don't get caught and recorded in the first place. 
+    This gets further investigated in Section 5.
 """
 )
 
 from utils import page_nav
-page_nav(prev=("pages/2_What_Drives_Predictions.py", "What Drives Predictions"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))
+page_nav(prev=("pages/2_What_Drives_Predictions", "What Drives Predictions"), next=("pages/4_Threshold_Tuning.py", "Threshold Tuning"))

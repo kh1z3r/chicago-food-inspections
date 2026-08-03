@@ -8,7 +8,7 @@ MAP_CONFIG = {"displayModeBar": True, "scrollZoom": True, "displaylogo": False,
               "modeBarButtonsToRemove": ["select2d", "lasso2d"]}
 
 
-eyebrow("Section 5")
+eyebrow("Section 4")
 st.title("Which neighborhoods does the model over- or under-flag?")
 st.markdown(
     """
@@ -40,7 +40,7 @@ with c1:
 with c2:
     stat_card(f"{zf['fpr'].max()/overall_fpr:.1f}\u00d7", "worst ZIP's FPR vs. citywide", flag=True)
 with c3:
-    stat_card(f"{zf['fpr'].min():.1%} \u2013 {zf['fpr'].max():.1%}", "FPR range across ZIPs")
+    stat_card(f"{zf['fpr'].min():.1%} \u2013 {zf['fpr'].max():.1%}", "False Positive Rate (FPR) range across ZIPs")
 
 st.divider()
 tab1, tab2 = st.tabs(["Chart", "Map"])
@@ -95,23 +95,15 @@ with tab2:
         missing_file_notice("zip_centroids.csv")
 
 st.divider()
-eyebrow("Full table")
-tbl = zf[["Zip", "fpr", "fnr", "n_test"]].copy()
-tbl["Zip"] = tbl["Zip"].astype(str)
-tbl = tbl.rename(columns={"Zip": "ZIP", "fpr": "False-positive rate",
-                          "fnr": "False-negative rate", "n_test": "Test inspections"})
-st.dataframe(
-    tbl.style.format({"False-positive rate": "{:.1%}", "False-negative rate": "{:.1%}"}),
-    use_container_width=True, height=350, hide_index=True,
-)
+
 
 finding(
     f"The worst ZIP's false-positive rate is <b>{zf['fpr'].max()/overall_fpr:.1f}\u00d7</b> "
     f"the citywide rate ({zf['fpr'].max():.1%} versus {overall_fpr:.1%}), while the lowest is "
     f"near {zf['fpr'].min():.1%}. This is a wide, genuine spread in how often the model flags a "
     "restaurant that in fact passes. It is the concrete evidence behind the second half of the "
-    "research question: predicted risk is not distributed evenly across the city, whatever its "
-    "cause. Section 6 tests whether that cause is enforcement mix."
+    "research question: predicted risk is not distributed evenly across the city." 
+    "Section 6 tests whether that cause is enforcement mix."
 )
 
 from utils import page_nav
