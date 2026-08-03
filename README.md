@@ -30,7 +30,7 @@ Snehal Agrawal
 <div align="center">
 
 **Live app:** [chicago-food-inspections-11d.streamlit.app](https://chicago-food-inspections-11d.streamlit.app)<br>
-**Notebook:** [Google Colab notebook](https://drive.google.com/file/d/1qacWoNyvCLTDfvOuQjQKpOPdWaP87vTL/view?usp=sharing)
+**Notebook:** [Google Colab notebook]([https://drive.google.com/file/d/1qacWoNyvCLTDfvOuQjQKpOPdWaP87vTL/view?usp=sharing](https://colab.research.google.com/drive/1qacWoNyvCLTDfvOuQjQKpOPdWaP87vTL?authuser=4#scrollTo=VTuBk8T4Iqwi))
 
 </div>
 
