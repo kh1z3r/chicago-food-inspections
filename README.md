@@ -46,7 +46,8 @@ Snehal Agrawal
 6. [Sources of Bias](#sources-of-bias)
 7. [Mitigation Strategies](#mitigation-strategies)
 8. [The Interactive App](#the-interactive-app)
-9. [Citations](#citations)
+9. [Why This Project Matters](#why-this-project-matters)
+10. [Citations](#citations)
 
 ---
 
@@ -133,6 +134,20 @@ Logistic regression is interpretable but can underfit; random forest is usually 
 ## The Interactive App
 
 The full audit is a live, multi-page Streamlit app: [chicago-food-inspections-11d.streamlit.app](https://chicago-food-inspections-11d.streamlit.app). It walks through model performance, what drives predictions, the neighborhood effect, threshold tuning, the per-ZIP fairness audit, the enforcement check, and the conclusions, including an interactive map of Chicago shaded by observed fail rate. The app reads pre-exported results from the analysis notebook, so it runs without the raw 350 MB dataset.
+
+---
+
+## Why This Project Matters
+
+Every year, millions of people become sick from foodborne illnesses, making restaurant inspections an essential part of protecting public health. However, health departments face a difficult challenge: there are far more food establishments than inspectors available to evaluate them. This is because inspections require significant time and resources and deciding which restaurants should be inspected first is a critical public health decision.
+
+Machine learning has the potential to make this process more efficient by identifying establishments that may be at higher risk of failing an inspection. Though, **improving efficiency is only part of the solution.** When predictive models are trained on historical inspection data, they can also inherit patterns created by past enforcement decisions. If left unchecked, these systems may repeatedly target the same neighborhoods, even when those predictions do not accurately reflect current food safety risk.
+
+Rather than asking whether we could simply predict inspection failures, our project focused on a more important question: **Who does the model get wrong, and are those mistakes distributed fairly?** By examining false positives and false negatives across Chicago ZIP codes, we evaluated whether prediction errors reflected genuine differences in food safety or whether they pointed to uneven enforcement patterns.
+
+Working on this project changed the way we think about AI. We came into it expecting to focus on building a strong prediction model, but we left realizing that **understanding a model's limitations can be just as important as improving its performance.** It showed us that responsible AI isn't just a concept we learn about in class—it's something that should be considered whenever technology is used to make decisions that affect real people.
+
+This project highlights an important principle in responsible AI: **a model can achieve strong predictive performance while still producing unequal outcomes for different communities.** Evaluating fairness alongside accuracy helps ensure that machine learning supports public health decisions without unintentionally reinforcing historical biases. Our goal is not only to build better predictive models but also to encourage more transparent, accountable, and equitable uses of AI in the public sector.
 
 ---
 
