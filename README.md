@@ -152,6 +152,16 @@ Working on this project changed the way we think about AI. We came into it expec
 This project highlights an important principle in responsible AI: **a model can achieve strong predictive performance while still producing unequal outcomes for different communities.** Evaluating fairness alongside accuracy helps ensure that machine learning supports public health decisions without unintentionally reinforcing historical biases. Our goal is not only to build better predictive models but also to encourage more transparent, accountable, and equitable uses of AI in the public sector.
 
 ---
+## Future Work
+
+While our initial models established a functional baseline for failure prediction, our audit identified key data constraints and ethical feedback loops. To build a more robust, equitable, and deployment-ready system, we propose the following dated next steps across data expansion, temporal evaluation, and fairness post-processing.
+
+Data Volume & Feature Expansion (Near-Term)
+Our current baseline model relies on only 4 pre-inspection features (*Inspection Type*, *ZIP Code*, *Facility Type*, and *City Risk Level*). While predictive, this limited feature set restricts the model's ability to make fully informed decisions based on establishment-level context.
+
+* **Historical Violation Engineering:** Extract and tokenize historical violation text and multi-year failure counts per business license to evaluate prior compliance history.
+* **Establishment Metadata:** Incorporate establishment age, ownership shifts, and licensing duration to allow the model to make more nuanced predictions rather than relying primarily on spatial location.
+* **Census Demographic Overlay (Task 6):** Merge U.S. Census Bureau (ACS 5-Year) median household income and racial demographics by ZIP code onto per-ZIP false-positive rates to formally quantify the socioeconomic impact across Chicago neighborhoods.
 
 ## Citations
 
