@@ -65,6 +65,8 @@ The project became less about "can we predict failures" (the city already predic
 
 ## What We Found
 
+View in slideshow form here: https://docs.google.com/presentation/d/1BpQRJ5V7s5Za9eKW3ea6VNqafFI9tNsVMftGqZ8tGCk/edit
+
 All results below are on a held-out test set, split by license number so the same establishment never appears in both training and testing.
 
 - **The models work, but raise many false alarms.** Random Forest catches about **67 percent** of real failures and Logistic Regression about **70 percent**, versus **0 percent** for an "always-Pass" baseline. Precision is low (about **30 percent**), meaning many flagged establishments actually passed.
