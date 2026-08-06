@@ -1,5 +1,6 @@
 <div align="center">
-
+![demo](https://media.giphy.com/media/2seJUR7XBwK1OBHbnu/giphy.gif)
+  
 # AI4ALL Project: Chicago Food Inspections
 
 ### Predicting Restaurant Health Inspection Failures in Chicago and Auditing Where Enforcement Falls
